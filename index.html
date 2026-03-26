@@ -1,0 +1,1742 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#0b0906">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>MAESTO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════════════ */
+:root {
+  --bg:      #0b0906;
+  --s1:      #131008;
+  --s2:      #1c1810;
+  --s3:      #262018;
+  --border:  #2e2818;
+  --text:    #f2ede4;
+  --text2:   #b8b0a0;
+  --muted:   #706858;
+  --amber:   #e8a030;
+  --amber-d: #c07818;
+  --red:     #d04828;
+  --green:   #58a058;
+  --blue:    #4878b8;
+  --warn:    #c89020;
+  --r:       18px;
+  --r-sm:    10px;
+  --r-xs:    6px;
+  --ease:    cubic-bezier(.4,0,.2,1);
+  --spring:  cubic-bezier(.34,1.56,.64,1);
+  /* Module accent — set by JS */
+  --mc: #e8a030;
+  --mc-bg: rgba(232,160,48,.08);
+}
+
+/* ═══════════════════════════════════════════════
+   RESET
+═══════════════════════════════════════════════ */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { height:100%; overflow:hidden; background:var(--bg); }
+body { font-family:'Plus Jakarta Sans',sans-serif; color:var(--text); font-size:15px; line-height:1.6; overscroll-behavior:none; }
+button { font-family:inherit; border:none; cursor:pointer; background:none; color:inherit; }
+strong { color:var(--text); font-weight:700; }
+
+/* ═══════════════════════════════════════════════
+   APP SHELL — Phone-framed on desktop
+═══════════════════════════════════════════════ */
+#app {
+  position:fixed; inset:0;
+  max-width:440px; margin:0 auto;
+  height:100dvh; overflow:hidden;
+  background:var(--bg);
+}
+
+/* Grain overlay */
+#app::after {
+  content:'';
+  position:absolute; inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none; z-index:9999; opacity:.6;
+}
+
+/* ═══════════════════════════════════════════════
+   SCREENS
+═══════════════════════════════════════════════ */
+.screen {
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  opacity:0; pointer-events:none;
+  will-change:transform,opacity;
+  overflow:hidden;
+}
+.screen.active { opacity:1; pointer-events:all; }
+
+/* Transition classes */
+.slide-in-right  { animation: slideInR  .32s var(--ease) forwards; }
+.slide-in-left   { animation: slideInL  .32s var(--ease) forwards; }
+.slide-out-left  { animation: slideOutL .28s var(--ease) forwards; }
+.slide-out-right { animation: slideOutR .28s var(--ease) forwards; }
+.fade-in         { animation: fadeIn    .3s  var(--ease) forwards; }
+.fade-out        { animation: fadeOut   .25s var(--ease) forwards; }
+.scale-in        { animation: scaleIn   .4s  var(--spring) forwards; }
+
+@keyframes slideInR  { from{transform:translateX(100%); opacity:.4} to{transform:translateX(0); opacity:1} }
+@keyframes slideInL  { from{transform:translateX(-100%); opacity:.4} to{transform:translateX(0); opacity:1} }
+@keyframes slideOutL { from{transform:translateX(0); opacity:1} to{transform:translateX(-30%); opacity:0} }
+@keyframes slideOutR { from{transform:translateX(0); opacity:1} to{transform:translateX(30%); opacity:0} }
+@keyframes fadeIn    { from{opacity:0; transform:translateY(12px)} to{opacity:1; transform:translateY(0)} }
+@keyframes fadeOut   { from{opacity:1} to{opacity:0} }
+@keyframes scaleIn   { from{opacity:0; transform:scale(.88)} to{opacity:1; transform:scale(1)} }
+
+/* ═══════════════════════════════════════════════
+   SCREEN: HOME
+═══════════════════════════════════════════════ */
+#s-home {
+  justify-content:space-between;
+  padding: env(safe-area-inset-top, 0px) 0 0;
+}
+
+.home-bg {
+  position:absolute; inset:0;
+  background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(232,160,48,.12) 0%, transparent 70%),
+              radial-gradient(ellipse 50% 40% at 80% 100%, rgba(208,72,40,.06) 0%, transparent 60%);
+  pointer-events:none;
+}
+
+.home-content {
+  flex:1; display:flex; flex-direction:column;
+  justify-content:center; align-items:flex-start;
+  padding: 0 32px;
+  position:relative; z-index:1;
+}
+
+.home-eyebrow {
+  font-size:11px; font-weight:600; letter-spacing:.18em; text-transform:uppercase;
+  color:var(--amber); margin-bottom:20px;
+  opacity:0; animation: fadeIn .5s .3s var(--ease) forwards;
+}
+
+.home-title {
+  font-family:'Fraunces',serif; font-size:clamp(52px,14vw,72px);
+  font-weight:700; line-height:.95; letter-spacing:-.02em;
+  color:var(--text); margin-bottom:8px;
+  opacity:0; animation: fadeIn .6s .6s var(--ease) forwards;
+}
+
+.home-title-italic {
+  display:block; font-style:italic; font-weight:300;
+  font-size:clamp(36px,10vw,52px); color:var(--amber);
+  line-height:1;
+}
+
+.home-sub {
+  font-size:15px; color:var(--text2); margin-top:20px; max-width:280px; line-height:1.5;
+  opacity:0; animation: fadeIn .5s 1s var(--ease) forwards;
+}
+
+.home-chips {
+  display:flex; flex-wrap:wrap; gap:8px; margin-top:24px;
+  opacity:0; animation: fadeIn .5s 1.2s var(--ease) forwards;
+}
+
+.chip {
+  font-size:11px; font-weight:600; color:var(--muted);
+  background:var(--s2); border:1px solid var(--border);
+  padding:5px 12px; border-radius:20px; letter-spacing:.04em;
+}
+
+.home-footer {
+  padding: 24px 32px calc(24px + env(safe-area-inset-bottom, 0px));
+  position:relative; z-index:1;
+  opacity:0; animation: fadeIn .5s 1.5s var(--ease) forwards;
+}
+
+/* ═══════════════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════════════ */
+.btn-primary {
+  width:100%; padding:18px 24px;
+  background:var(--amber); color:#0b0906;
+  font-size:15px; font-weight:700; letter-spacing:.02em;
+  border-radius:var(--r); border:none; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  transition: transform .15s var(--spring), box-shadow .15s var(--ease), background .15s;
+  box-shadow: 0 4px 20px rgba(232,160,48,.25);
+  position:relative; overflow:hidden;
+  -webkit-user-select:none; user-select:none;
+}
+.btn-primary:hover  { background:#f0b040; box-shadow:0 6px 28px rgba(232,160,48,.35); }
+.btn-primary:active { transform:scale(.97); box-shadow:0 2px 8px rgba(232,160,48,.15); }
+.btn-primary .arrow { transition: transform .2s var(--spring); }
+.btn-primary:hover .arrow { transform:translateX(4px); }
+
+/* Ripple */
+.btn-primary::after {
+  content:''; position:absolute;
+  width:200%; height:200%; top:-50%; left:-50%;
+  background:radial-gradient(circle, rgba(255,255,255,.15) 0%, transparent 60%);
+  opacity:0; transition:opacity .3s;
+}
+.btn-primary:active::after { opacity:1; }
+
+.btn-ghost {
+  padding:14px 20px;
+  border:1px solid var(--border); color:var(--text2);
+  border-radius:var(--r-sm); font-size:14px; font-weight:500;
+  transition: border-color .15s, color .15s, transform .15s var(--spring), background .15s;
+  -webkit-user-select:none; user-select:none;
+}
+.btn-ghost:hover  { border-color:var(--mc); color:var(--mc); background:var(--mc-bg); }
+.btn-ghost:active { transform:scale(.97); }
+
+.btn-icon {
+  width:44px; height:44px; border-radius:var(--r-sm);
+  border:1px solid var(--border); color:var(--muted);
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px;
+  transition: border-color .15s, color .15s, background .15s, transform .15s var(--spring);
+}
+.btn-icon:hover  { border-color:var(--mc); color:var(--mc); background:var(--mc-bg); }
+.btn-icon:active { transform:scale(.92); }
+
+/* ═══════════════════════════════════════════════
+   SCREEN: MAP
+═══════════════════════════════════════════════ */
+#s-map { background:var(--bg); }
+
+.map-header {
+  padding: calc(env(safe-area-inset-top, 0px) + 20px) 24px 16px;
+  display:flex; align-items:center; justify-content:space-between;
+  flex-shrink:0;
+}
+
+.map-logo {
+  font-family:'Fraunces',serif; font-size:22px; font-weight:700;
+  letter-spacing:-.01em;
+}
+.map-logo span { color:var(--amber); font-style:italic; }
+
+.overall-progress {
+  display:flex; align-items:center; gap:8px;
+}
+.op-ring {
+  width:36px; height:36px; position:relative;
+}
+.op-ring svg { transform:rotate(-90deg); }
+.op-bg  { stroke:var(--s3); }
+.op-fill { stroke:var(--amber); stroke-linecap:round; transition:stroke-dashoffset .5s var(--ease); }
+.op-num {
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  font-size:9px; font-weight:700; font-family:'Plus Jakarta Sans',sans-serif; color:var(--amber);
+}
+
+.map-title {
+  padding:0 24px 16px; font-family:'Fraunces',serif;
+  font-size:28px; font-weight:300; color:var(--text2);
+  flex-shrink:0;
+}
+.map-title strong { color:var(--text); font-weight:700; }
+
+.map-grid {
+  flex:1; overflow-y:auto; padding:4px 24px 100px;
+  display:grid; grid-template-columns:1fr 1fr; gap:12px;
+  scrollbar-width:none;
+}
+.map-grid::-webkit-scrollbar { display:none; }
+
+.module-card {
+  background:var(--s1); border:1px solid var(--border);
+  border-radius:var(--r); padding:18px 16px;
+  cursor:pointer; position:relative; overflow:hidden;
+  transition: transform .2s var(--spring), border-color .2s, box-shadow .2s;
+  -webkit-user-select:none; user-select:none;
+  opacity:0; animation: fadeIn .4s var(--ease) forwards;
+}
+.module-card:hover  { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,.4); }
+.module-card:active { transform:scale(.96); }
+.module-card.done   { border-color:rgba(88,160,88,.3); }
+
+/* Accent line at top */
+.module-card::before {
+  content:''; position:absolute; top:0; left:0; right:0;
+  height:3px; background:var(--mc);
+  transform:scaleX(0); transform-origin:left;
+  transition:transform .3s var(--ease);
+}
+.module-card:hover::before { transform:scaleX(1); }
+.module-card.done::before  { transform:scaleX(1); }
+
+.mc-icon  { font-size:24px; margin-bottom:10px; }
+.mc-name  { font-size:13px; font-weight:700; color:var(--text); margin-bottom:4px; line-height:1.3; }
+.mc-count { font-size:11px; color:var(--muted); }
+
+.mc-prog-wrap {
+  margin-top:12px; height:3px; background:var(--s3); border-radius:3px; overflow:hidden;
+}
+.mc-prog-fill {
+  height:100%; background:var(--mc); border-radius:3px;
+  transition:width .5s var(--ease);
+}
+
+.mc-done-badge {
+  position:absolute; top:10px; right:10px;
+  font-size:14px; opacity:0; transition:opacity .2s;
+}
+.module-card.done .mc-done-badge { opacity:1; }
+
+/* Map bottom hint */
+.map-hint {
+  position:absolute; bottom:0; left:0; right:0;
+  padding:12px 24px calc(12px + env(safe-area-inset-bottom, 0px));
+  text-align:center; font-size:12px; color:var(--muted);
+  background:linear-gradient(transparent, var(--bg) 40%);
+}
+
+/* ═══════════════════════════════════════════════
+   SCREEN: SECTION
+═══════════════════════════════════════════════ */
+#s-section {
+  background:var(--bg);
+}
+
+/* Top bar */
+.sec-topbar {
+  display:flex; align-items:center; gap:12px;
+  padding: calc(env(safe-area-inset-top, 0px) + 14px) 20px 12px;
+  flex-shrink:0;
+}
+
+.sec-back {
+  width:36px; height:36px; border-radius:var(--r-sm);
+  border:1px solid var(--border); color:var(--muted);
+  display:flex; align-items:center; justify-content:center;
+  font-size:16px; flex-shrink:0;
+  transition:border-color .15s, color .15s, background .15s, transform .15s var(--spring);
+  cursor:pointer;
+}
+.sec-back:hover  { border-color:var(--mc); color:var(--mc); background:var(--mc-bg); }
+.sec-back:active { transform:scale(.9); }
+
+.sec-meta {
+  flex:1; min-width:0;
+}
+.sec-module-tag {
+  font-size:10px; font-weight:600; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--mc); margin-bottom:2px;
+}
+.sec-section-num {
+  font-size:12px; color:var(--muted);
+}
+
+/* Dots progress */
+.sec-dots {
+  display:flex; gap:5px; align-items:center; flex-shrink:0;
+}
+.sec-dot {
+  width:6px; height:6px; border-radius:3px;
+  background:var(--s3); transition:width .3s var(--spring), background .2s;
+}
+.sec-dot.active {
+  width:18px; background:var(--mc);
+}
+.sec-dot.visited {
+  background:var(--s3); border:1px solid var(--mc); opacity:.6;
+}
+
+/* Overall bar */
+.overall-bar {
+  height:2px; background:var(--s2); flex-shrink:0; margin:0 20px 4px;
+}
+.overall-bar-fill {
+  height:100%; background:var(--mc); border-radius:2px;
+  transition:width .5s var(--ease);
+}
+
+/* Section title area */
+.sec-title-area {
+  padding:8px 24px 14px; flex-shrink:0;
+}
+.sec-title {
+  font-family:'Fraunces',serif; font-size:clamp(20px,5.5vw,26px);
+  font-weight:700; line-height:1.2; color:var(--text);
+}
+
+/* Card viewport */
+.card-viewport {
+  flex:1; overflow:hidden; position:relative;
+  padding:0 20px;
+}
+
+/* Card */
+.card {
+  position:absolute; inset:0;
+  padding:0 4px;
+  overflow-y:auto; scrollbar-width:none;
+  opacity:0; pointer-events:none;
+}
+.card::-webkit-scrollbar { display:none; }
+.card.card-active {
+  opacity:1; pointer-events:all;
+  animation: cardEnter .28s var(--ease) forwards;
+}
+.card.card-exit-left  { animation:cardExitL .22s var(--ease) forwards; }
+.card.card-exit-right { animation:cardExitR .22s var(--ease) forwards; }
+
+@keyframes cardEnter  { from{opacity:0; transform:translateY(18px)} to{opacity:1; transform:translateY(0)} }
+@keyframes cardExitL  { from{opacity:1; transform:translateX(0)} to{opacity:0; transform:translateX(-20px)} }
+@keyframes cardExitR  { from{opacity:1; transform:translateX(0)} to{opacity:0; transform:translateX(20px)} }
+
+.card-inner {
+  padding:4px 0 8px;
+  display:flex; flex-direction:column; gap:12px;
+}
+
+/* ─── Card components ──────────────────────── */
+
+/* Headline */
+.c-headline {
+  font-family:'Fraunces',serif; font-size:clamp(20px,5.5vw,26px);
+  font-weight:700; line-height:1.3; color:var(--text);
+  padding:20px 0 4px;
+}
+.c-headline em { color:var(--mc); font-style:italic; }
+
+/* Callout */
+.c-callout {
+  border-radius:var(--r); padding:16px;
+  display:flex; gap:12px; align-items:flex-start;
+  font-size:14px; line-height:1.55; color:var(--text2);
+}
+.c-callout.danger { background:#180c08; border:1px solid rgba(208,72,40,.3); }
+.c-callout.warn   { background:#141004; border:1px solid rgba(200,144,32,.3); }
+.c-callout.ok     { background:#081408; border:1px solid rgba(88,160,88,.3); }
+.c-callout.info   { background:#08101c; border:1px solid rgba(72,120,184,.3); }
+.c-callout-icon   { font-size:20px; flex-shrink:0; margin-top:1px; }
+.c-callout strong { color:var(--text); }
+
+/* List */
+.c-list { display:flex; flex-direction:column; gap:7px; }
+.c-list-item {
+  display:flex; gap:10px; align-items:flex-start;
+  padding:10px 13px; border-radius:var(--r-sm);
+  font-size:13.5px; line-height:1.5; color:var(--text2);
+  background:var(--s1); border:1px solid var(--border);
+}
+.c-list-item.good { border-left:3px solid var(--green); }
+.c-list-item.bad  { border-left:3px solid var(--red); }
+.c-list-item.warn { border-left:3px solid var(--warn); }
+.c-list-item .marker { flex-shrink:0; font-size:15px; margin-top:1px; }
+
+/* Steps */
+.c-steps { display:flex; flex-direction:column; gap:8px; counter-reset:s; }
+.c-step {
+  counter-increment:s;
+  display:flex; gap:12px; align-items:flex-start;
+  padding:11px 13px 11px 11px; border-radius:var(--r-sm);
+  background:var(--s1); border:1px solid var(--border);
+  font-size:13.5px; line-height:1.5; color:var(--text2);
+  position:relative;
+}
+.c-step-num {
+  flex-shrink:0; width:22px; height:22px;
+  background:var(--mc-bg); border:1px solid var(--mc);
+  border-radius:6px; display:flex; align-items:center; justify-content:center;
+  font-size:10px; font-weight:700; color:var(--mc);
+  font-family:'Fraunces',serif;
+}
+
+/* Stats row */
+.c-stats { display:flex; gap:8px; }
+.c-stat {
+  flex:1; background:var(--s1); border:1px solid var(--border);
+  border-radius:var(--r-sm); padding:14px 10px; text-align:center;
+}
+.c-stat-val {
+  font-family:'Fraunces',serif; font-size:clamp(22px,6vw,28px);
+  font-weight:700; color:var(--mc); line-height:1; margin-bottom:5px;
+}
+.c-stat-lbl { font-size:11px; color:var(--muted); line-height:1.3; }
+
+/* Versus */
+.c-versus { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.c-vs-col {
+  background:var(--s1); border:1px solid var(--border);
+  border-radius:var(--r-sm); padding:12px;
+}
+.c-vs-col.do   { border-top:2px solid var(--green); }
+.c-vs-col.dont { border-top:2px solid var(--red); }
+.c-vs-head {
+  font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+  margin-bottom:8px;
+}
+.c-vs-col.do   .c-vs-head { color:var(--green); }
+.c-vs-col.dont .c-vs-head { color:var(--red); }
+.c-vs-item {
+  font-size:12.5px; color:var(--text2); margin-bottom:5px;
+  padding-left:12px; position:relative; line-height:1.4;
+}
+.c-vs-item::before {
+  content:''; position:absolute; left:0; top:7px;
+  width:5px; height:5px; border-radius:50%;
+}
+.do   .c-vs-item::before { background:var(--green); }
+.dont .c-vs-item::before { background:var(--red); }
+
+/* Script */
+.c-script {
+  background:#061008; border:1px solid rgba(88,160,88,.25);
+  border-radius:var(--r); padding:16px; position:relative;
+  font-size:13.5px; line-height:1.6; color:#8cbd8c; font-style:italic;
+  cursor:pointer;
+}
+.c-script-badge {
+  position:absolute; top:-1px; right:14px;
+  background:rgba(88,160,88,.15); border:1px solid rgba(88,160,88,.3);
+  border-radius:0 0 6px 6px; color:var(--green);
+  font-size:9px; font-weight:700; letter-spacing:.1em; padding:2px 8px;
+  font-style:normal;
+  transition:background .2s;
+}
+.c-script.copied .c-script-badge {
+  background:rgba(88,160,88,.3); content:'✓ COPIADO';
+}
+.c-script.copied { border-color:rgba(88,160,88,.5); }
+
+/* Insight */
+.c-insight {
+  border-radius:var(--r); padding:20px;
+  background:var(--mc-bg); border:1px solid rgba(232,160,48,.2);
+  font-family:'Fraunces',serif; font-size:clamp(17px,4.5vw,20px);
+  font-style:italic; font-weight:400; line-height:1.4;
+  color:var(--text);
+  text-align:center;
+}
+
+/* Table */
+.c-table { overflow-x:auto; border-radius:var(--r-sm); border:1px solid var(--border); }
+.c-table table { width:100%; border-collapse:collapse; font-size:12.5px; }
+.c-table th {
+  background:var(--s2); color:var(--mc);
+  font-size:9.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+  padding:9px 12px; text-align:left; border-bottom:1px solid var(--border);
+  white-space:nowrap;
+}
+.c-table td {
+  padding:9px 12px; border-bottom:1px solid var(--s2);
+  color:var(--text2); vertical-align:top;
+}
+.c-table tr:last-child td { border-bottom:none; }
+.c-table tr:hover td { background:var(--s1); }
+.price { color:var(--amber); font-weight:600; }
+.td-good { color:var(--green); }
+.td-bad  { color:var(--red); }
+.td-warn { color:var(--warn); }
+
+/* Levels (timeline) */
+.c-levels { display:flex; flex-direction:column; gap:8px; }
+.c-level {
+  border-radius:var(--r-sm); padding:14px 14px 14px 16px;
+  background:var(--s1); border:1px solid var(--border);
+  border-left:3px solid var(--mc); font-size:13px;
+}
+.c-level-head {
+  display:flex; align-items:center; gap:8px; margin-bottom:6px;
+}
+.c-level-badge {
+  font-size:9px; font-weight:700; letter-spacing:.08em;
+  padding:3px 8px; border-radius:20px;
+  background:var(--mc-bg); color:var(--mc);
+}
+.c-level-title { font-size:13.5px; font-weight:700; color:var(--text); }
+.c-level p { font-size:12.5px; color:var(--text2); line-height:1.4; }
+
+/* ─── Section bottom bar ────────────────────── */
+.sec-bottombar {
+  padding:14px 20px calc(14px + env(safe-area-inset-bottom, 0px));
+  display:flex; gap:10px; align-items:center;
+  flex-shrink:0;
+  border-top:1px solid var(--border);
+  background:var(--bg);
+}
+
+.sec-prev {
+  flex-shrink:0;
+  width:46px; height:46px; border-radius:var(--r-sm);
+  border:1px solid var(--border); color:var(--muted);
+  display:flex; align-items:center; justify-content:center; font-size:18px;
+  transition:all .15s var(--spring); cursor:pointer;
+}
+.sec-prev:hover  { border-color:var(--border2, #3a3018); color:var(--text2); background:var(--s2); }
+.sec-prev:active { transform:scale(.9); }
+.sec-prev:disabled { opacity:.25; pointer-events:none; }
+
+.sec-next {
+  flex:1; height:46px;
+  background:var(--mc); color:#0b0906;
+  border-radius:var(--r-sm); font-size:14px; font-weight:700;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  transition:all .15s var(--spring); cursor:pointer;
+  box-shadow:0 3px 14px rgba(0,0,0,.3);
+}
+.sec-next:hover  { filter:brightness(1.08); box-shadow:0 5px 20px rgba(0,0,0,.4); }
+.sec-next:active { transform:scale(.97); }
+.sec-next .n-arrow { transition:transform .2s var(--spring); }
+.sec-next:hover .n-arrow { transform:translateX(4px); }
+
+.sec-counter {
+  font-size:11px; color:var(--muted); white-space:nowrap;
+  font-family:'Fraunces',serif; letter-spacing:.02em;
+  min-width:36px; text-align:center;
+}
+
+/* ═══════════════════════════════════════════════
+   SCREEN: MODULE COMPLETE
+═══════════════════════════════════════════════ */
+#s-done {
+  justify-content:center; align-items:center;
+  text-align:center; padding:40px 32px;
+  padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px));
+}
+
+.done-circle {
+  width:88px; height:88px; border-radius:50%;
+  background:var(--mc-bg); border:2px solid var(--mc);
+  display:flex; align-items:center; justify-content:center;
+  font-size:36px; margin:0 auto 28px;
+  animation: scaleIn .5s var(--spring) forwards;
+}
+
+.done-tag {
+  font-size:11px; font-weight:700; letter-spacing:.18em; text-transform:uppercase;
+  color:var(--mc); margin-bottom:10px;
+}
+
+.done-title {
+  font-family:'Fraunces',serif; font-size:clamp(28px,8vw,36px);
+  font-weight:700; color:var(--text); margin-bottom:8px;
+}
+
+.done-sub { font-size:14px; color:var(--text2); max-width:280px; margin:0 auto 32px; }
+
+.done-stats {
+  display:flex; gap:12px; justify-content:center; margin-bottom:36px;
+}
+.done-stat { text-align:center; }
+.done-stat-val {
+  font-family:'Fraunces',serif; font-size:28px; font-weight:700;
+  color:var(--mc); line-height:1;
+}
+.done-stat-lbl { font-size:11px; color:var(--muted); margin-top:4px; }
+.done-divider { width:1px; background:var(--border); align-self:stretch; }
+
+.done-key {
+  background:var(--s1); border:1px solid var(--border); border-radius:var(--r);
+  padding:16px; margin-bottom:28px; font-family:'Fraunces',serif;
+  font-size:16px; font-style:italic; color:var(--text2); line-height:1.4;
+  text-align:left;
+}
+.done-key strong { color:var(--text); font-style:normal; }
+
+.done-actions { display:flex; flex-direction:column; gap:10px; width:100%; }
+
+/* ═══════════════════════════════════════════════
+   SCREEN: FINAL
+═══════════════════════════════════════════════ */
+#s-final {
+  justify-content:center; align-items:center;
+  text-align:center; padding:40px 32px;
+  background: radial-gradient(ellipse 100% 60% at 50% 0%, rgba(232,160,48,.1) 0%, transparent 70%);
+}
+
+.final-stars { font-size:28px; margin-bottom:20px; letter-spacing:4px; }
+.final-title {
+  font-family:'Fraunces',serif; font-size:clamp(32px,9vw,48px);
+  font-weight:700; line-height:1;
+  margin-bottom:6px;
+}
+.final-title span { color:var(--amber); }
+.final-sub { font-size:14px; color:var(--text2); margin-bottom:32px; }
+
+.final-principle {
+  background:var(--s1); border:1px solid var(--border);
+  border-radius:var(--r); padding:20px; margin-bottom:28px;
+  font-size:13.5px; color:var(--text2); line-height:1.6; text-align:left;
+}
+.final-principle strong { color:var(--amber); }
+
+/* ═══════════════════════════════════════════════
+   SWIPE HINT
+═══════════════════════════════════════════════ */
+.swipe-hint {
+  position:absolute; bottom:80px; left:50%; transform:translateX(-50%);
+  font-size:11px; color:var(--muted); white-space:nowrap;
+  display:flex; align-items:center; gap:6px;
+  opacity:0; pointer-events:none;
+  animation: swipeAppear 3s 1s ease forwards;
+}
+@keyframes swipeAppear {
+  0%   { opacity:0; }
+  15%  { opacity:1; }
+  75%  { opacity:1; }
+  100% { opacity:0; }
+}
+.swipe-arrows { animation:swipeAnim 1.2s 1s ease-in-out infinite; }
+@keyframes swipeAnim {
+  0%,100% { transform:translateX(0); }
+  50%     { transform:translateX(6px); }
+}
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE — desktop frame
+═══════════════════════════════════════════════ */
+@media (min-width:480px) {
+  #app {
+    top:0; border-radius:0;
+    box-shadow: 0 0 0 1px var(--s2);
+  }
+  body { background:#050403; }
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ════ HOME ════ -->
+  <div id="s-home" class="screen active">
+    <div class="home-bg"></div>
+    <div class="home-content">
+      <div class="home-eyebrow">Sistema · Chile · 2026</div>
+      <div class="home-title">
+        MAESTO
+        <span class="home-title-italic">pastelería</span>
+      </div>
+      <p class="home-sub">22 secciones. Sin teoría bonita. Solo el sistema que funciona en la vida real con capital mínimo.</p>
+      <div class="home-chips">
+        <span class="chip">23 módulos</span>
+        <span class="chip">Sin scroll</span>
+        <span class="chip">Acción directa</span>
+        <span class="chip">Mobile-first</span>
+      </div>
+    </div>
+    <div class="home-footer">
+      <button class="btn-primary" onclick="go('map')">
+        Activar Sistema <span class="arrow">→</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ════ MAP ════ -->
+  <div id="s-map" class="screen">
+    <div class="map-header">
+      <div class="map-logo">MAE<span>STO</span></div>
+      <div class="overall-progress">
+        <div class="op-ring">
+          <svg width="36" height="36" viewBox="0 0 36 36">
+            <circle class="op-bg"   cx="18" cy="18" r="14" fill="none" stroke-width="3"/>
+            <circle class="op-fill" id="op-circle" cx="18" cy="18" r="14" fill="none" stroke-width="3"
+                    stroke-dasharray="87.96" stroke-dashoffset="87.96"/>
+          </svg>
+          <div class="op-num" id="op-num">0%</div>
+        </div>
+      </div>
+    </div>
+    <div class="map-title">Elige <strong>por dónde empezar</strong></div>
+    <div class="map-grid" id="map-grid"></div>
+    <div class="map-hint">Toca un módulo para comenzar</div>
+  </div>
+
+  <!-- ════ SECTION ════ -->
+  <div id="s-section" class="screen">
+    <div class="sec-topbar">
+      <button class="sec-back" id="sec-back" onclick="backFromSection()">←</button>
+      <div class="sec-meta">
+        <div class="sec-module-tag" id="sec-mod-tag">MÓDULO</div>
+        <div class="sec-section-num" id="sec-sec-num">—</div>
+      </div>
+      <div class="sec-dots" id="sec-dots"></div>
+    </div>
+    <div class="overall-bar"><div class="overall-bar-fill" id="overall-fill"></div></div>
+    <div class="sec-title-area">
+      <div class="sec-title" id="sec-title">—</div>
+    </div>
+    <div class="card-viewport" id="card-viewport"></div>
+    <div class="sec-bottombar">
+      <button class="sec-prev" id="sec-prev" onclick="prevCard()">←</button>
+      <div class="sec-counter" id="sec-counter">1/4</div>
+      <button class="sec-next" id="sec-next" onclick="nextCard()">
+        <span id="next-label">Continuar</span>
+        <span class="n-arrow">→</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ════ MODULE DONE ════ -->
+  <div id="s-done" class="screen">
+    <div class="done-circle" id="done-icon">✓</div>
+    <div class="done-tag" id="done-tag">Módulo completado</div>
+    <div class="done-title" id="done-title">Bien hecho</div>
+    <p class="done-sub" id="done-sub">—</p>
+    <div class="done-stats">
+      <div class="done-stat"><div class="done-stat-val" id="ds-secs">—</div><div class="done-stat-lbl">Secciones</div></div>
+      <div class="done-divider"></div>
+      <div class="done-stat"><div class="done-stat-val" id="ds-total">—</div><div class="done-stat-lbl">Completadas</div></div>
+      <div class="done-divider"></div>
+      <div class="done-stat"><div class="done-stat-val" id="ds-pct">—</div><div class="done-stat-lbl">del Sistema</div></div>
+    </div>
+    <div class="done-key" id="done-key"></div>
+    <div class="done-actions">
+      <button class="btn-primary" id="done-continue" onclick="continueAfterModule()">
+        <span id="done-cta-label">Siguiente módulo</span> <span class="arrow">→</span>
+      </button>
+      <button class="btn-ghost" onclick="go('map')">Ver todos los módulos</button>
+    </div>
+  </div>
+
+  <!-- ════ FINAL ════ -->
+  <div id="s-final" class="screen">
+    <div class="final-stars">🍫🥮🚀</div>
+    <div class="final-title">Sistema<br><span>Activado</span></div>
+    <p class="final-sub">Completaste el sistema completo.</p>
+    <div class="final-principle">
+      <strong>La regla de oro:</strong><br>
+      No hay día sin una acción. No hay producción sin pedido confirmado. No hay entrega sin cobro. Aplica esto y el negocio funciona.
+    </div>
+    <button class="btn-primary" onclick="go('map')">Revisar módulos →</button>
+  </div>
+
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════
+   CONTENT DATA
+═══════════════════════════════════════════════ */
+const MODULES = [
+  { id:'inicio',      icon:'🚀', name:'Inicio Rápido',   color:'#e8a030', secs:[15,16,3],         key:'La primera acción, no la primera planificación.' },
+  { id:'analisis',    icon:'⚠️', name:'Análisis',        color:'#d04828', secs:[0,1,2],            key:'No fracasan por falta de dinero. Fracasan por falta de demanda real.' },
+  { id:'producto',    icon:'🍫', name:'Producto',        color:'#c08040', secs:[4,5,10],           key:'No te diferencies por precio. Diferénciate por constancia.' },
+  { id:'operaciones', icon:'⚙️', name:'Operaciones',     color:'#4878b8', secs:[6,7,11,17],        key:'Nunca producir más de lo que tienes pedidos confirmados.' },
+  { id:'ventas',      icon:'📱', name:'Ventas',          color:'#50a058', secs:[8,9,21],           key:'La velocidad de respuesta en WhatsApp aumenta la conversión en 40%.' },
+  { id:'gestion',     icon:'🧠', name:'Gestión',         color:'#9060c0', secs:[12,13,14,18,19,20,22], key:'Acción mínima diaria. Sin esto, el negocio muere silenciosamente.' },
+];
+
+const SECTIONS = {
+
+/* ─── MÓDULO 1: INICIO ─────────────────────── */
+15: {
+  title:'De la Idea a la Primera Venta',
+  cards:[
+    { type:'headline', text:'De la <em>idea</em> a tu primera venta en 3 días.' },
+    { type:'callout', variant:'danger', icon:'🔥', text:'<strong>Error fatal del día 0:</strong> Hablar del negocio sin hacer nada. Planificar demasiado. Buscar el nombre perfecto antes de cocinar. Cada hora sin acción concreta es energía que se convierte en ansiedad, no en negocio.' },
+    { type:'steps', title:'La ruta mínima', items:[
+      'Día 0: Decide el producto. Solo uno. Brownie clásico.',
+      'Día 1: Compra ingredientes ($8.000–12.000 max). Produce lote de prueba.',
+      'Día 1 noche: Fotografía el resultado. 3 fotos con buena luz.',
+      'Día 2: Publica estado en WhatsApp personal. Ofrece a 5 contactos.',
+      'Día 3: Primera venta real. Cobra el dinero. Anótalo. Eso es el negocio empezado.',
+    ]},
+    { type:'versus', left:{ label:'Pensar en esto', items:['¿Tengo los ingredientes?','¿Cuándo producimos?','¿A quién le pregunto primero si está rico?'] }, right:{ label:'No pensar en esto', items:['El nombre del negocio','Si la competencia existe','Cómo escalar'] } },
+    { type:'callout', variant:'warn', icon:'💡', text:'Tu mamá siempre dirá que está rico. No es dato válido. Necesitas personas fuera del círculo íntimo.' },
+  ]
+},
+16: {
+  title:'Línea de Tiempo — Niveles',
+  cards:[
+    { type:'headline', text:'Existen <em>6 niveles</em>. Estás en el 0.' },
+    { type:'levels', items:[
+      { badge:'NIVEL 0', title:'Solo la Idea',          text:'Convierte la idea en una decisión. Fija fecha de primera cocción.' },
+      { badge:'NIVEL 1', title:'Validación sin Costo',  text:'Produce con lo que hay. Muestra a 5 personas fuera de familia.' },
+      { badge:'NIVEL 2', title:'Compra Mínima',         text:'Solo lo necesario para 20–30 unidades. Máximo $25.000.' },
+      { badge:'NIVEL 3', title:'Primera Producción',    text:'Lote completo con intención de venta. Registra cada peso gastado.' },
+      { badge:'NIVEL 4', title:'Primeras Ventas',       text:'Cobra antes de entregar. Registra todo. Agradece a cada cliente.' },
+      { badge:'NIVEL 5', title:'Ajuste y Mejora',       text:'Calcula margen real. Pregunta a compradores. Planifica siguiente lote.' },
+    ]},
+    { type:'callout', variant:'ok', icon:'🎯', text:'Para pasar de nivel 4 a 5: vendiste al menos el 70% del lote con ganancia neta positiva. Si no llegas, vuelve al nivel anterior y ajusta.' },
+  ]
+},
+3: {
+  title:'Diseño del Negocio',
+  cards:[
+    { type:'steps', title:'Día 1 — Solo esto', items:[
+      'Elegir UN producto. Solo uno. Brownies clásicos.',
+      'Hacer la receta con lo que tienen. Sin comprar nada nuevo.',
+      'Tomar 3 fotos reales. Buena luz, fondo simple.',
+      'Publicar estado WhatsApp: "Hacemos brownies caseros, ¿les interesa?"',
+    ]},
+    { type:'list', items:[
+      { type:'good', text:'<strong>Semana 1:</strong> Producir solo con pedidos. Crear catálogo WA Business básico.' },
+      { type:'good', text:'<strong>Semana 2:</strong> Agregar alfajores si brownies funcionaron. Días de entrega fijos.' },
+      { type:'warn', text:'<strong>Regla fija:</strong> Definir precios finales. No cambiarlos en el primer mes.' },
+    ]},
+    { type:'versus', left:{ label:'Hacer ahora', items:['Hacer la receta','Vender a contactos directos','Registrar cada venta'] }, right:{ label:'Ignorar por ahora', items:['Crear Instagram','Diseñar logo profesional','Empaque premium'] } },
+  ]
+},
+
+/* ─── MÓDULO 2: ANÁLISIS ───────────────────── */
+0: {
+  title:'Riesgo y Escenarios',
+  cards:[
+    { type:'callout', variant:'danger', icon:'⚠️', text:'<strong>Verdad incómoda:</strong> La mayoría fracasa no por falta de dinero, sino por falta de demanda real, por sobreestimar al vecindario, y por confundir "me dicen que sí" con "me pagan".' },
+    { type:'list', items:[
+      { type:'bad',  text:'<strong>Escenario 1:</strong> No se vende. Regala 3 unidades a vecinos estratégicos. Pídeles feedback real. Úsalo como prueba social.' },
+      { type:'bad',  text:'<strong>Escenario 2:</strong> Pierdes dinero. Causa: produjiste sin pedidos. Solución: producción bajo demanda, nunca por ilusión.' },
+      { type:'warn', text:'<strong>Escenario 3:</strong> Baja demanda. Cambia el canal, no el producto. Ir a terreno.' },
+      { type:'bad',  text:'<strong>Escenario 4:</strong> Falla de calidad. Una mala experiencia bien resuelta crea más fidelidad que diez perfectas.' },
+    ]},
+    { type:'callout', variant:'warn', icon:'🔪', text:'<strong>Regla de corte:</strong> Si en 30 días de esfuerzo real no logras 5 ventas netas con ganancia, el negocio en ese formato no funciona. No es fracaso — es datos.' },
+  ]
+},
+1: {
+  title:'Diagnóstico Crítico',
+  cards:[
+    { type:'headline', text:'El mercado existe. El problema es la <em>ejecución</em>.' },
+    { type:'list', items:[
+      { type:'bad', text:'<strong>Sobreinvertir antes de vender:</strong> Compraron para 200 unidades. Vendieron 12.' },
+      { type:'bad', text:'<strong>Perfeccionismo:</strong> Gastaron 2 semanas en el logo. Cero semanas vendiendo.' },
+      { type:'bad', text:'<strong>Solo publicar, nunca activar:</strong> Pusieron una foto y esperaron. El cliente necesita que le hablen directo.' },
+      { type:'warn', text:'<strong>No registrar nada:</strong> No saben si ganaron o perdieron. No pueden mejorar lo que no miden.' },
+    ]},
+    { type:'callout', variant:'ok', icon:'💡', text:'Tu cliente real es la mamá que necesita algo para el cumpleaños del niño esta tarde. <strong>Compra impulsiva + confianza previa = venta.</strong> El WhatsApp personal gana sobre Instagram al inicio.' },
+    { type:'callout', variant:'warn', icon:'📍', text:'En Padre Hurtado, los mismos 20 vecinos ya compraron en 3 semanas. Necesitas red nueva constantemente. El vecindario no es infinito.' },
+  ]
+},
+2: {
+  title:'Validación Real',
+  cards:[
+    { type:'steps', title:'Probar sin gastar más de $15.000', items:[
+      'Hacer 1 receta con lo que hay en casa. Mínimo 8–12 brownies.',
+      'Dar 3–4 gratis a personas fuera de la familia. Preguntar: ¿cuánto pagarías?',
+      'Publicar foto en WhatsApp personal. Ver quién pregunta precio sin que tú lo menciones.',
+      'Producir 1 lote pequeño solo con 5 pedidos confirmados. Si no llegas a 5, el canal no está listo.',
+    ]},
+    { type:'versus', left:{ label:'Sí funciona', items:['Alguien pregunta precio primero','3+ personas piden que avises','Cliente repite a la semana','Te recomiendan a desconocidos'] }, right:{ label:'No funciona', items:['Solo familia y amigos compran','Nadie pregunta precio','"Qué rico" pero no compran','Tienes que insistir 2+ veces'] } },
+    { type:'table', headers:['Semana','Mínimo','Si no llegas'], rows:[
+      ['1','5 ventas reales', {text:'Cambiar mensaje/canal',cls:'td-warn'}],
+      ['2','10 ventas reales', {text:'Ir a terreno o feria',cls:'td-warn'}],
+      ['3–4','15+ con retorno', {text:'Rediseñar modelo',cls:'td-bad'}],
+      ['30 días','Flujo positivo', {text:'Evaluar si continuar',cls:'td-bad'}],
+    ]},
+  ]
+},
+
+/* ─── MÓDULO 3: PRODUCTO ───────────────────── */
+4: {
+  title:'Producto',
+  cards:[
+    { type:'callout', variant:'ok', icon:'🍫', text:'<strong>Orden de lanzamiento:</strong><br>Semana 1–2: Solo brownies (1 sabor base)<br>Semana 3: Alfajores si brownies funcionan<br>Semana 4+: Batidos solo bajo pedido inmediato' },
+    { type:'callout', variant:'warn', icon:'💡', text:'No te diferencies por precio. Te diferencies por <strong>historia + constancia + presentación</strong>. La vecina no te compra porque eres más barato — te compra porque confía y le llega calientito.' },
+    { type:'list', items:[
+      { type:'good', text:'Firma tu producto: nombre escrito a mano en la caja. $0 de costo, enorme diferencia.' },
+      { type:'good', text:'Mensaje WhatsApp de "gracias" después de cada entrega. Tarda 10 segundos.' },
+      { type:'good', text:'Consistencia: mismo tamaño, mismo sabor, siempre. El cliente repite por confianza.' },
+    ]},
+    { type:'table', headers:['Producto','Formato','Precio'], rows:[
+      ['Brownie individual','Unidad 5×5 cm',{text:'$1.000–1.200',cls:'price'}],
+      ['Caja brownies','x4',{text:'$3.500–4.000',cls:'price'}],
+      ['Alfajor individual','Unidad',{text:'$800–1.000',cls:'price'}],
+      ['Pack alfajores','Bolsa x6',{text:'$4.500–5.000',cls:'price'}],
+      ['Batido 400ml','Vaso',{text:'$2.000–2.500',cls:'price'}],
+    ]},
+  ]
+},
+5: {
+  title:'Costos y Rentabilidad',
+  cards:[
+    { type:'stats', items:[
+      { val:'~60%', label:'Margen bruto brownies' },
+      { val:'~65%', label:'Margen bruto alfajores' },
+      { val:'~70%', label:'Margen bruto batidos' },
+    ]},
+    { type:'callout', variant:'warn', icon:'⚠️', text:'<strong>Estos márgenes son del insumo puro.</strong> No incluyen tu tiempo, costo de captación ni merma. Si calculas $2.000/hora de trabajo tuyo, el margen baja significativamente. Al inicio lo estás absorbiendo tú.' },
+    { type:'table', headers:['Ingrediente','Costo','Rinde para'], rows:[
+      ['Harina 1kg',{text:'$900',cls:'price'},'~4 doc. alfajores o 2 bandejas brownies'],
+      ['Mantequilla 250g',{text:'$2.000',cls:'price'},'1–2 lotes'],
+      ['Huevos docena',{text:'$3.000',cls:'price'},'2–3 lotes brownies'],
+      ['Chocolate 200g',{text:'$2.500',cls:'price'},'1 bandeja brownies'],
+      ['Manjar 400g',{text:'$2.000',cls:'price'},'~2 docenas alfajores'],
+    ]},
+    { type:'stats', items:[
+      { val:'27',  label:'Brownies/día para recuperar $30k en 7 días' },
+      { val:'~5',  label:'Días para recuperar $30k de inversión' },
+    ]},
+  ]
+},
+10: {
+  title:'Branding',
+  cards:[
+    { type:'list', items:[
+      { type:'good', text:'<strong>La Hornita</strong> — Diminutivo afectivo, calor de hogar. Muy barrial.' },
+      { type:'good', text:'<strong>De a Dos</strong> — Referencia a la pareja. Ideal para combos y regalos.' },
+      { type:'good', text:'<strong>Dulce Vecino</strong> — Cercanía directa, confianza del barrio.' },
+      { type:'good', text:'<strong>Calentito</strong> — Frescura, inmediatez, comfort. Perfecto para terreno.' },
+      { type:'good', text:'<strong>Azúcar del Barrio</strong> — Arraigo territorial, identidad comunitaria.' },
+    ]},
+    { type:'callout', variant:'ok', icon:'🎨', text:'<strong>Paleta recomendada:</strong> Marrón chocolate + crema/beige + naranja suave. Evita negro total (frío) y rosa pastel (genérico). Tipografía: una fuente manuscrita para el nombre, una limpia para precios.' },
+    { type:'callout', variant:'info', icon:'⏱️', text:'Logo mínimo viable: nombre del negocio + ícono simple en Canva. 20 minutos. $0. <strong>No contratar diseñador hasta validar.</strong>' },
+  ]
+},
+
+/* ─── MÓDULO 4: OPERACIONES ────────────────── */
+6: {
+  title:'Operaciones',
+  cards:[
+    { type:'steps', title:'Flujo completo de cada venta', items:[
+      'Pedido confirmado → cliente define cantidad y fecha.',
+      'Confirmar disponibilidad → ¿tienes insumos? ¿horno libre?',
+      'Registrar pedido → nombre, producto, cantidad, precio, dirección, hora.',
+      'Producción → mismo día o el anterior. Nunca más de 1 día antes.',
+      'Empaque → bolsa o caja limpia. Nombre del cliente escrito a mano.',
+      'Cobro → transferencia o efectivo. Confirmar ANTES de entregar.',
+      'Registro post-venta → qué vendiste, cuánto, cuánto ganaste.',
+    ]},
+    { type:'list', items:[
+      { type:'good', text:'Nunca producir más de lo que tienes pedidos confirmados.' },
+      { type:'good', text:'Brownies: máximo 3 días post-producción. Día 2 sin vender → precio de urgencia.' },
+      { type:'warn', text:'Batidos: se preparan al momento del pedido. Nunca antes.' },
+      { type:'bad',  text:'Lote quemado = pérdida total. Siempre prueba la temperatura del horno primero.' },
+    ]},
+  ]
+},
+7: {
+  title:'Higiene y Seguridad',
+  cards:[
+    { type:'callout', variant:'danger', icon:'🦠', text:'<strong>Riesgo real ignorado:</strong> Una intoxicación no solo daña al cliente — destruye el negocio de inmediato y puede tener consecuencias legales. Esto no es opcional.' },
+    { type:'list', items:[
+      { type:'good', text:'Manos lavadas con jabón antes de tocar cualquier alimento. Siempre.' },
+      { type:'good', text:'Utensilios y superficies desinfectados. Agua + cloro diluido.' },
+      { type:'good', text:'Pelo recogido, sin anillos ni pulseras durante producción.' },
+      { type:'bad',  text:'Nunca producir si estás resfriado, con gripe o con herida sin guante.' },
+      { type:'bad',  text:'Nunca usar superficies de carne cruda sin lavar completamente antes.' },
+    ]},
+    { type:'table', headers:['Producto','Duración','Dónde'], rows:[
+      ['Brownies',{text:'3–4 días',cls:'td-warn'},'Caja cerrada, ambiente fresco'],
+      ['Alfajores sin crema',{text:'3–5 días',cls:'td-warn'},'Caja hermética'],
+      ['Alfajores con crema',{text:'24–48 horas',cls:'td-bad'},'Refrigerador'],
+      ['Batidos',{text:'Solo al momento',cls:'td-bad'},'Vaso sellado'],
+    ]},
+    { type:'callout', variant:'ok', icon:'📋', text:'Registrarte como <strong>Microempresario Familiar (MEF)</strong> en tu municipalidad es gratis y te protege legalmente. Vale la pena cuando escales a volumen mayor.' },
+  ]
+},
+11: {
+  title:'Delivery y Logística',
+  cards:[
+    { type:'list', items:[
+      { type:'good', text:'<strong>Radio gratis:</strong> 10–15 cuadras a pie. Más lejos: $500–1.000 de envío.' },
+      { type:'good', text:'<strong>Pedido mínimo para despacho:</strong> $3.000 o más. Menos de eso, el cliente retira.' },
+      { type:'good', text:'<strong>Días fijos:</strong> Martes, jueves y sábado. Agrupar pedidos por zona.' },
+      { type:'bad',  text:'<strong>No despachar sin pago:</strong> "Te transfiero después" = pedido perdido en el 30% de los casos.' },
+    ]},
+    { type:'table', headers:['Situación','Acción'], rows:[
+      ['Cliente no está al llegar','Llamar 2 veces, esperar 5 min, volver. Cobrar igual.'],
+      ['Cancelación de último minuto','Cancelaciones -2 horas no tienen devolución de seña.'],
+      ['Zona muy lejana','Despacho en días específicos o costo real de envío.'],
+    ]},
+  ]
+},
+17: {
+  title:'Lista de Compra Inicial',
+  cards:[
+    { type:'callout', variant:'warn', icon:'🛒', text:'<strong>Regla de oro:</strong> Compra solo lo que uses en los próximos 7 días. El emprendedor novato siempre sobrecompra "por si acaso" y ese stock no se vende y se vence.' },
+    { type:'stats', items:[
+      { val:'$8k',  label:'Solo brownies (mínimo absoluto)' },
+      { val:'$15k', label:'Brownies + alfajores (recomendado)' },
+      { val:'$25k', label:'Con stock adicional + empaque' },
+    ]},
+    { type:'list', items:[
+      { type:'bad', text:'Cajas de cartón personalizadas — gastaron $15.000 antes de vender 1 unidad.' },
+      { type:'bad', text:'Stickers a color — Canva + imprimir en B/N + cortar = $500. No $8.000.' },
+      { type:'bad', text:'Ingredientes premium (chocolate belga, etc.) — primero valida, después mejora.' },
+      { type:'bad', text:'Nevera portátil para batidos — cuando generen $20.000/semana, la compras.' },
+    ]},
+    { type:'table', headers:['Equipamiento','Alternativa','¿Comprar?'], rows:[
+      ['Molde rectangular','Aluminio desechable ($700)',{text:'Solo si no tienes',cls:'td-warn'}],
+      ['Batidora eléctrica','Cuchara de palo (funciona)',{text:'NO todavía',cls:'td-bad'}],
+      ['Báscula','Tazas medidoras',{text:'NO todavía',cls:'td-bad'}],
+    ]},
+  ]
+},
+
+/* ─── MÓDULO 5: VENTAS ─────────────────────── */
+8: {
+  title:'Ventas — WhatsApp y Terreno',
+  cards:[
+    { type:'list', items:[
+      { type:'good', text:'<strong>Perfil WA:</strong> Foto del producto. Nombre del negocio. Horario real. Ubicación aproximada.' },
+      { type:'good', text:'<strong>Catálogo:</strong> Máximo 5 productos al inicio. Foto real + precio exacto.' },
+      { type:'good', text:'<strong>Respuesta auto:</strong> "Gracias por escribir. Te respondemos en 30 minutos." Nunca más.' },
+      { type:'warn', text:'<strong>Difusión:</strong> Solo a quienes ya compraron o dieron permiso. No spam masivo.' },
+    ]},
+    { type:'script', text:'🍫 ¡Hola [nombre]! Hoy tenemos brownies fresquitos — con nuez o sin nuez. Caja de 4 por $3.800 o unidades a $1.100. ¿Te mandamos a tu casa esta tarde? Despachamos hasta las 20:00.' },
+    { type:'script', text:'🥮 Buenos días [nombre]! Alfajores de maicena recién hechos — el relleno es manjar de verdad 😊. Pack de 6 por $4.800. ¿Quieres que te apartes uno?' },
+    { type:'table', headers:['Objeción','Respuesta'], rows:[
+      ['"Está muy caro"','"Son caseros, con mantequilla real. Te hago un pack de prueba a mitad de precio."'],
+      ['"¿Son frescos?"','"Los hacemos el mismo día. Te mando foto de la producción de hoy."'],
+      ['"Lo dejo para la próxima"','"Dale, te aviso el viernes con el próximo lote. ¿Te escribo?"'],
+    ]},
+  ]
+},
+9: {
+  title:'Marketing',
+  cards:[
+    { type:'list', items:[
+      { type:'good', text:'<strong>"Making of" del día:</strong> Video 15 seg de la producción. Sin edición. Genera confianza.' },
+      { type:'good', text:'<strong>Foto con luz natural:</strong> Próximo a ventana, fondo blanco o madera. Nada más.' },
+      { type:'good', text:'<strong>Testimonio:</strong> "Gracias [nombre] 🙏" + foto del producto entregado (con permiso).' },
+      { type:'warn', text:'<strong>No hagas esto:</strong> Frases motivacionales, fotos de internet, videos de cocina ajenos.' },
+    ]},
+    { type:'script', text:'🍫 BROWNIES FRESCOS HOY — Hechos esta mañana, listos para retirar o despacho local. Caja x4: $3.800 | Unidad: $1.100. Escríbenos antes de las 19:00 📲' },
+    { type:'script', text:'✅ QUEDAN SOLO 8 UNIDADES. Alfajores de maicena con manjar, recién hechos. Pack x6 = $4.800. Se acaban hoy.' },
+    { type:'callout', variant:'warn', icon:'🎯', text:'No uses "oferta por tiempo limitado" si es mentira. Úsala cuando sea real: último lote del día, cantidad limitada porque ya vendiste 10 de 12. La <strong>urgencia falsa destruye confianza</strong>.' },
+  ]
+},
+21: {
+  title:'Con Poco Dinero',
+  cards:[
+    { type:'callout', variant:'ok', icon:'💡', text:'<strong>Ventaja del capital mínimo:</strong> Te obliga a ser eficiente. Con $30.000, cada decisión importa. Los emprendedores con mucho dinero cometen los errores más caros.' },
+    { type:'steps', title:'Plan con $20.000', items:[
+      'Invertir $12.000 en insumos para brownies (20–24 unidades).',
+      'Invertir $2.000 en empaque básico.',
+      'Guardar $6.000 como reserva de emergencia.',
+      'Vender las 20 unidades → ingresas ~$20.000 → recuperas inversión + $8.000 netos.',
+      'Con esos $8.000 compras el siguiente lote SIN tocar la reserva.',
+    ]},
+    { type:'table', headers:['Semana','Ingresos','Reinversión',{text:'Libre',cls:'td-good'}], rows:[
+      ['1',{text:'$25.000',cls:'price'},{text:'$15.000',cls:'price'},{text:'$10.000',cls:'td-good'}],
+      ['2',{text:'$35.000',cls:'price'},{text:'$18.000',cls:'price'},{text:'$17.000',cls:'td-good'}],
+      ['3',{text:'$45.000',cls:'price'},{text:'$22.000',cls:'price'},{text:'$23.000',cls:'td-good'}],
+      ['4',{text:'$55.000',cls:'price'},{text:'$25.000',cls:'price'},{text:'$30.000',cls:'td-good'}],
+    ]},
+  ]
+},
+
+/* ─── MÓDULO 6: GESTIÓN ────────────────────── */
+12: {
+  title:'Control y Registro Diario',
+  cards:[
+    { type:'callout', variant:'info', icon:'📒', text:'Lo que no mides no puedes mejorar. Esto toma <strong>5 minutos al día</strong> y es la diferencia entre un negocio que aprende y uno que repite errores.' },
+    { type:'list', items:[
+      { type:'good', text:'Cuántas unidades produjiste de cada producto.' },
+      { type:'good', text:'Cuántas vendiste y cuánto dinero entraste (total del día).' },
+      { type:'good', text:'Cuánto gastaste en insumos ese día.' },
+      { type:'good', text:'Cuántas unidades quedaron sin vender (merma).' },
+      { type:'warn', text:'Nombre de clientes nuevos. Algún error que ocurrió.' },
+    ]},
+    { type:'callout', variant:'warn', icon:'📊', text:'Si tu merma supera el 20% por 2 semanas seguidas, estás produciendo demasiado. <strong>Reduce el lote o consigue pedidos antes de producir.</strong>' },
+  ]
+},
+13: {
+  title:'Escalamiento',
+  cards:[
+    { type:'list', items:[
+      { type:'good', text:'Llevas 4 semanas consecutivas con flujo positivo.' },
+      { type:'good', text:'Tienes más pedidos de los que puedes cumplir (rechazas ventas).' },
+      { type:'good', text:'Al menos 3 clientes preguntan si vendes en mayor cantidad.' },
+      { type:'warn', text:'Tu tiempo de producción supera 20 horas semanales y aún hay demanda.' },
+    ]},
+    { type:'callout', variant:'ok', icon:'📐', text:'<strong>Regla 60/20/20:</strong> 60% de utilidades → insumos del siguiente lote. 20% → mejoras graduales (empaque, moldes). 20% → reserva de emergencia.' },
+    { type:'callout', variant:'info', icon:'🚫', text:'No invertir en marketing pago hasta tener flujo estable de 3 meses. El boca a boca cuesta $0.' },
+  ]
+},
+14: {
+  title:'Priorización Extrema',
+  cards:[
+    { type:'callout', variant:'ok', icon:'🎯', text:'<strong>Lo único importante en el primer mes:</strong> Hacer UNA venta real. Luego 5. Luego 20 por semana. Todo lo demás es secundario. Absolutamente todo.' },
+    { type:'versus', left:{ label:'Hacer ahora', items:['Hacer la receta','Vender a contactos','Registrar cada venta','Perfeccionar 1 producto','Mantener el precio'] }, right:{ label:'Ignorar por ahora', items:['Crear Instagram','Logo profesional','Empaque premium','5 sabores distintos','Estudiar competencia'] } },
+    { type:'insight', text:'"El negocio no fracasa por falta de estrategia. Fracasa porque nadie fue a vender."' },
+  ]
+},
+18: {
+  title:'Simulación Real — Un Día Tipo',
+  cards:[
+    { type:'steps', title:'07:30 → Preparación', items:[
+      'Revisar pedidos confirmados: nombre, cantidad, hora.',
+      'Verificar stock. ¿Hay mantequilla? ¿Suficiente manjar?',
+      'Limpiar mesón. Lavar manos. Preparar utensilios.',
+    ]},
+    { type:'callout', variant:'warn', icon:'🔥', text:'<strong>Problema real:</strong> Horno calienta desigual, brownies crudos al centro. Solución: 10 min más. Si quedan quemados por fuera, no vender ese lote. Asumir la pérdida y ajustar temperatura para el próximo.' },
+    { type:'steps', title:'11:00 → Ventas activas', items:[
+      'Publicar estado WA: "Brownies frescos hoy — quedan 15 unidades."',
+      'Enviar mensaje a 8 contactos del historial: "Hola [nombre], ¿te mando?"',
+      'Responder consultas en menos de 10 minutos. +40% conversión.',
+    ]},
+    { type:'stats', items:[
+      { val:'18', label:'Unidades vendidas de 32' },
+      { val:'$21k', label:'Ingresos del día' },
+      { val:'$13k', label:'Margen bruto' },
+    ]},
+  ]
+},
+19: {
+  title:'Trabajo en Pareja',
+  cards:[
+    { type:'callout', variant:'danger', icon:'⚠️', text:'El 40% de los negocios de pareja colapsan no por falta de dinero, sino por <strong>falta de roles claros</strong> y por mezclar problemas del negocio con los de la relación.' },
+    { type:'versus', left:{ label:'Rol Operativo', items:['Responsable de cocina','Control de stock','Calidad del producto','Limpieza y orden','Registro de producción'] }, right:{ label:'Rol Comercial', items:['WhatsApp Business','Coordinar entregas','Cobros y registro','Comunicación clientes','Publicar estados'] } },
+    { type:'list', items:[
+      { type:'good', text:'<strong>Reunión semanal de 15 min:</strong> ¿Cuánto vendimos? ¿Cuánto gastamos? ¿Qué funcionó? ¿Qué falló? Solo números.' },
+      { type:'bad',  text:'Nunca tomar decisiones de negocio durante una discusión personal. Siempre son malas decisiones.' },
+      { type:'warn', text:'Si uno se desmotiva: el otro sostiene el mínimo ese día. Acordar el mínimo no negociable para días malos.' },
+    ]},
+  ]
+},
+20: {
+  title:'Sistema Anti-Errores',
+  cards:[
+    { type:'script', text:'📦 PEDIDO #[número]\nNombre: [cliente]\nProducto: [qué y cuánto]\nPrecio: $[total]\nEntrega: [fecha] a las [hora]\nDirección: [sector]\nPago: [pendiente / pagado]' },
+    { type:'list', items:[
+      { type:'good', text:'<strong>Cobro obligatorio</strong> antes o al momento de entrega. "Te transfiero después" no existe.' },
+      { type:'good', text:'<strong>Sin fiado</strong> para clientes nuevos. Máximo $3.000 para alguien de confianza probada.' },
+      { type:'good', text:'<strong>Confirmar 30 min antes de salir:</strong> "¿Estás en casa? Salgo en 30 min con tu pedido."' },
+    ]},
+    { type:'list', items:[
+      { type:'good', text:'Antes de cocinar: mesón limpio, utensilios listos, receta a la vista.' },
+      { type:'good', text:'Lista de ingredientes confirmada antes de empezar.' },
+      { type:'bad',  text:'Timer activo para hornos. No "lo sé de memoria". Los hornos mienten.' },
+    ]},
+  ]
+},
+22: {
+  title:'Control Mental y Disciplina',
+  cards:[
+    { type:'callout', variant:'danger', icon:'🧠', text:'<strong>Verdad final:</strong> No vas a tener siempre motivación. No la esperes. La motivación es un bonus, no el motor. El sistema y los hábitos son el motor.' },
+    { type:'versus', left:{ label:'Acción concreta', items:['A las 15:00 publico 1 foto en WA','Mando mensaje a 3 clientes del historial','Anoto las ventas del día hoy'] }, right:{ label:'Vago (no funciona)', items:['Tengo que trabajar hoy','Voy a publicar algo','Debería llevar las cuentas'] } },
+    { type:'table', headers:['Momento','Acción fija','Tiempo'], rows:[
+      ['8–10 AM','Revisar pedidos, publicar disponibilidad','10 min'],
+      ['Mediodía','Responder mensajes WhatsApp','5 min'],
+      ['Tarde','Publicar foto del día','5 min'],
+      ['9–10 PM','Registrar ventas en cuaderno','5 min'],
+    ]},
+    { type:'callout', variant:'ok', icon:'🏆', text:'Mide solo lo que controlas: ¿publiqué hoy? ¿contacté clientes? ¿anoté los números? Si la respuesta es sí — <strong>fue un buen día de negocio.</strong>' },
+  ]
+},
+};
+
+/* ═══════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════ */
+const ST = {
+  screen:    'home',
+  moduleIdx: 0,
+  sectionIdx:0,
+  cardIdx:   0,
+  visited:   new Set(),   // set of section ids
+  modDone:   new Set(),   // set of module ids
+};
+
+function saveState() {
+  try {
+    localStorage.setItem('maesto_v', JSON.stringify({
+      visited:   [...ST.visited],
+      modDone:   [...ST.modDone],
+      moduleIdx: ST.moduleIdx,
+    }));
+  } catch(e) {}
+}
+
+function loadState() {
+  try {
+    const d = JSON.parse(localStorage.getItem('maesto_v') || 'null');
+    if (d) {
+      ST.visited   = new Set(d.visited || []);
+      ST.modDone   = new Set(d.modDone || []);
+      ST.moduleIdx = d.moduleIdx || 0;
+    }
+  } catch(e) {}
+}
+
+/* Total sections */
+const TOTAL_SECS = Object.keys(SECTIONS).length; // 23
+
+/* ═══════════════════════════════════════════════
+   NAVIGATION / TRANSITION ENGINE
+═══════════════════════════════════════════════ */
+let transitioning = false;
+
+function go(screenId, dir = 'forward') {
+  if (transitioning) return;
+  const from = document.querySelector('.screen.active');
+  const to   = document.getElementById('s-' + screenId);
+  if (!to || from === to) return;
+
+  transitioning = true;
+  ST.screen = screenId;
+
+  const inAnim  = dir === 'back' ? 'slide-in-left'  : 'slide-in-right';
+  const outAnim = dir === 'back' ? 'slide-out-right' : 'slide-out-left';
+
+  // Special case: home-to-map uses fade/scale
+  const isHome = from.id === 's-home';
+  const actualIn = isHome ? 'fade-in' : inAnim;
+
+  to.classList.add('active', actualIn);
+  from.classList.add(isHome ? 'fade-out' : outAnim);
+
+  setTimeout(() => {
+    from.classList.remove('active', outAnim, 'fade-out');
+    to.classList.remove(actualIn, 'fade-in');
+    transitioning = false;
+  }, 340);
+}
+
+/* ═══════════════════════════════════════════════
+   MAP SCREEN
+═══════════════════════════════════════════════ */
+function renderMap() {
+  const grid = document.getElementById('map-grid');
+  grid.innerHTML = '';
+
+  MODULES.forEach((mod, mi) => {
+    const done  = ST.modDone.has(mod.id);
+    const secs  = mod.secs;
+    const doneC = secs.filter(s => ST.visited.has(s)).length;
+    const pct   = Math.round((doneC / secs.length) * 100);
+
+    const card = document.createElement('div');
+    card.className = 'module-card' + (done ? ' done' : '');
+    card.style.setProperty('--mc', mod.color);
+    card.style.setProperty('--mc-bg', hexToRgba(mod.color, .08));
+    card.style.animationDelay = (mi * 60) + 'ms';
+
+    card.innerHTML = `
+      <div class="mc-done-badge">✓</div>
+      <div class="mc-icon">${mod.icon}</div>
+      <div class="mc-name">${mod.name}</div>
+      <div class="mc-count">${secs.length} sección${secs.length > 1 ? 'es' : ''} · ${pct}%</div>
+      <div class="mc-prog-wrap">
+        <div class="mc-prog-fill" style="width:${pct}%; background:${mod.color}"></div>
+      </div>
+    `;
+
+    card.addEventListener('click', () => enterModule(mi));
+    grid.appendChild(card);
+  });
+
+  updateOverallProgress();
+}
+
+function updateOverallProgress() {
+  const pct = Math.round((ST.visited.size / TOTAL_SECS) * 100);
+  const circ = document.getElementById('op-circle');
+  const r = 14; const c = 2 * Math.PI * r;
+  circ.style.strokeDashoffset = c * (1 - pct / 100);
+  document.getElementById('op-num').textContent = pct + '%';
+}
+
+function hexToRgba(hex, a) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+/* ═══════════════════════════════════════════════
+   SECTION / CARD ENGINE
+═══════════════════════════════════════════════ */
+function enterModule(moduleIdx) {
+  ST.moduleIdx  = moduleIdx;
+  ST.sectionIdx = 0;
+  enterCurrentSection();
+}
+
+function enterCurrentSection() {
+  const mod  = MODULES[ST.moduleIdx];
+  const secId = mod.secs[ST.sectionIdx];
+  const sec   = SECTIONS[secId];
+  if (!sec) return;
+
+  ST.cardIdx = 0;
+  ST.visited.add(secId);
+  saveState();
+
+  // Set module theme
+  applyModuleTheme(mod.color);
+
+  // Update topbar
+  document.getElementById('sec-mod-tag').textContent = mod.icon + ' ' + mod.name;
+  document.getElementById('sec-sec-num').textContent =
+    `Sección ${ST.sectionIdx + 1} de ${mod.secs.length}`;
+  document.getElementById('sec-title').textContent = sec.title;
+
+  // Render cards
+  renderCards(sec.cards);
+  renderDots(sec.cards.length, 0);
+  updateOverallBar();
+
+  // Navigate to section screen
+  const isFromMap = ST.screen === 'map';
+  go('section', 'forward');
+  showCard(0, 'enter');
+}
+
+function applyModuleTheme(color) {
+  const app = document.getElementById('app');
+  app.style.setProperty('--mc', color);
+  app.style.setProperty('--mc-bg', hexToRgba(color, .08));
+}
+
+function renderCards(cards) {
+  const vp = document.getElementById('card-viewport');
+  vp.innerHTML = '';
+
+  cards.forEach((card, i) => {
+    const el = document.createElement('div');
+    el.className = 'card';
+    el.id = 'card-' + i;
+    el.innerHTML = '<div class="card-inner">' + buildCard(card) + '</div>';
+    vp.appendChild(el);
+
+    // Script copy handler
+    const script = el.querySelector('.c-script');
+    if (script) {
+      script.addEventListener('click', () => {
+        const text = script.innerText.replace('COPIAR','').trim();
+        navigator.clipboard?.writeText(text).then(() => {
+          script.classList.add('copied');
+          const badge = script.querySelector('.c-script-badge');
+          if (badge) badge.textContent = '✓ COPIADO';
+          setTimeout(() => {
+            script.classList.remove('copied');
+            if (badge) badge.textContent = 'COPIAR';
+          }, 2200);
+        });
+      });
+    }
+  });
+}
+
+function buildCard(c) {
+  switch(c.type) {
+    case 'headline':
+      return `<div class="c-headline">${c.text}</div>`;
+
+    case 'callout':
+      return `<div class="c-callout ${c.variant||'info'}">
+        <span class="c-callout-icon">${c.icon||'ℹ️'}</span>
+        <div>${c.text}</div>
+      </div>`;
+
+    case 'list':
+      return `<div class="c-list">` +
+        c.items.map(item => `
+          <div class="c-list-item ${item.type||''}">
+            <span class="marker">${item.type==='good'?'✓':item.type==='bad'?'✗':'◆'}</span>
+            <span>${item.text}</span>
+          </div>`).join('') +
+        `</div>`;
+
+    case 'steps':
+      return (c.title ? `<div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mc);margin-bottom:8px">${c.title}</div>` : '') +
+        `<div class="c-steps">` +
+        c.items.map((it,i) => `
+          <div class="c-step">
+            <div class="c-step-num">${i+1}</div>
+            <span>${it}</span>
+          </div>`).join('') +
+        `</div>`;
+
+    case 'stats':
+      return `<div class="c-stats">` +
+        c.items.map(s => `
+          <div class="c-stat">
+            <div class="c-stat-val">${s.val}</div>
+            <div class="c-stat-lbl">${s.label}</div>
+          </div>`).join('') +
+        `</div>`;
+
+    case 'versus':
+      return `<div class="c-versus">
+        <div class="c-vs-col do">
+          <div class="c-vs-head">✓ ${c.left.label}</div>
+          ${c.left.items.map(i=>`<div class="c-vs-item">${i}</div>`).join('')}
+        </div>
+        <div class="c-vs-col dont">
+          <div class="c-vs-head">✗ ${c.right.label}</div>
+          ${c.right.items.map(i=>`<div class="c-vs-item">${i}</div>`).join('')}
+        </div>
+      </div>`;
+
+    case 'script':
+      return `<div class="c-script">
+        <div class="c-script-badge">COPIAR</div>
+        ${c.text.replace(/\n/g,'<br>')}
+      </div>`;
+
+    case 'insight':
+      return `<div class="c-insight">${c.text}</div>`;
+
+    case 'table': {
+      const headerCells = c.headers.map(h => {
+        if (typeof h === 'object') return `<th class="${h.cls||''}">${h.text}</th>`;
+        return `<th>${h}</th>`;
+      }).join('');
+      const rows = c.rows.map(row => `<tr>${
+        row.map(cell => {
+          if (typeof cell === 'object' && cell.text !== undefined)
+            return `<td class="${cell.cls||''}">${cell.text}</td>`;
+          return `<td>${cell}</td>`;
+        }).join('')
+      }</tr>`).join('');
+      return `<div class="c-table"><table><thead><tr>${headerCells}</tr></thead><tbody>${rows}</tbody></table></div>`;
+    }
+
+    case 'levels':
+      return `<div class="c-levels">` +
+        c.items.map(lv => `
+          <div class="c-level">
+            <div class="c-level-head">
+              <span class="c-level-badge">${lv.badge}</span>
+              <span class="c-level-title">${lv.title}</span>
+            </div>
+            <p>${lv.text}</p>
+          </div>`).join('') +
+        `</div>`;
+
+    default: return '';
+  }
+}
+
+/* ─── Card navigation ─────────────────────── */
+function showCard(idx, dir) {
+  const mod   = MODULES[ST.moduleIdx];
+  const sec   = SECTIONS[mod.secs[ST.sectionIdx]];
+  const cards = sec.cards;
+  const total = cards.length;
+
+  // Clamp
+  if (idx < 0 || idx >= total) return;
+
+  // Exit current
+  const current = document.querySelector('.card.card-active');
+  if (current) {
+    current.classList.add(dir === 'forward' ? 'card-exit-left' : 'card-exit-right');
+    setTimeout(() => {
+      current.classList.remove('card-active','card-exit-left','card-exit-right');
+    }, 220);
+  }
+
+  // Enter new
+  const next = document.getElementById('card-' + idx);
+  if (!next) return;
+  setTimeout(() => {
+    next.classList.add('card-active');
+    next.scrollTop = 0;
+  }, current ? 220 : 0);
+
+  ST.cardIdx = idx;
+
+  // Update dots
+  renderDots(total, idx);
+
+  // Update counter + button labels
+  document.getElementById('sec-counter').textContent = `${idx+1}/${total}`;
+  const nextLabel = document.getElementById('next-label');
+  const isLastCard    = idx === total - 1;
+  const isLastSection = ST.sectionIdx === mod.secs.length - 1;
+
+  if (isLastCard) {
+    nextLabel.textContent = isLastSection ? 'Completar módulo' : 'Siguiente sección';
+  } else {
+    nextLabel.textContent = 'Continuar';
+  }
+
+  // Prev button state
+  const prevBtn = document.getElementById('sec-prev');
+  prevBtn.disabled = idx === 0 && ST.sectionIdx === 0;
+
+  // Vibrate on mobile
+  if (navigator.vibrate) navigator.vibrate(8);
+}
+
+function nextCard() {
+  const mod   = MODULES[ST.moduleIdx];
+  const sec   = SECTIONS[mod.secs[ST.sectionIdx]];
+  const total = sec.cards.length;
+
+  if (ST.cardIdx < total - 1) {
+    showCard(ST.cardIdx + 1, 'forward');
+  } else {
+    // End of cards → next section or module done
+    nextSection();
+  }
+}
+
+function prevCard() {
+  if (ST.cardIdx > 0) {
+    showCard(ST.cardIdx - 1, 'back');
+  } else if (ST.sectionIdx > 0) {
+    // Go back to previous section, last card
+    ST.sectionIdx--;
+    const mod  = MODULES[ST.moduleIdx];
+    const sec  = SECTIONS[mod.secs[ST.sectionIdx]];
+    ST.cardIdx = sec.cards.length - 1;
+    enterCurrentSectionBack();
+  }
+}
+
+function enterCurrentSectionBack() {
+  const mod   = MODULES[ST.moduleIdx];
+  const secId = mod.secs[ST.sectionIdx];
+  const sec   = SECTIONS[secId];
+  if (!sec) return;
+
+  document.getElementById('sec-sec-num').textContent =
+    `Sección ${ST.sectionIdx + 1} de ${mod.secs.length}`;
+  document.getElementById('sec-title').textContent = sec.title;
+
+  renderCards(sec.cards);
+  renderDots(sec.cards.length, ST.cardIdx);
+  showCard(ST.cardIdx, 'back');
+}
+
+function nextSection() {
+  const mod = MODULES[ST.moduleIdx];
+
+  if (ST.sectionIdx < mod.secs.length - 1) {
+    ST.sectionIdx++;
+    enterCurrentSection();
+  } else {
+    // Module complete
+    showModuleDone();
+  }
+}
+
+function showModuleDone() {
+  const mod = MODULES[ST.moduleIdx];
+  ST.modDone.add(mod.id);
+  saveState();
+
+  applyModuleTheme(mod.color);
+
+  document.getElementById('done-icon').textContent = mod.icon;
+  document.getElementById('done-tag').textContent = mod.name + ' · Completado';
+  document.getElementById('done-title').textContent = '¡Bien hecho!';
+
+  const doneCount = ST.visited.size;
+  const totalPct  = Math.round((doneCount / TOTAL_SECS) * 100);
+
+  document.getElementById('ds-secs').textContent  = mod.secs.length;
+  document.getElementById('ds-total').textContent = doneCount;
+  document.getElementById('ds-pct').textContent   = totalPct + '%';
+  document.getElementById('done-sub').textContent =
+    `Completaste el módulo ${mod.name}. Llevas ${doneCount} de ${TOTAL_SECS} secciones.`;
+  document.getElementById('done-key').innerHTML =
+    `<strong>Idea clave de este módulo:</strong><br>${mod.key}`;
+
+  // Check if all modules done
+  const allDone = MODULES.every(m => ST.modDone.has(m.id));
+  if (allDone) {
+    document.getElementById('done-cta-label').textContent = 'Ver resumen final';
+    document.getElementById('done-continue').onclick = () => go('final');
+  } else {
+    const nextMod = findNextModule();
+    document.getElementById('done-cta-label').textContent =
+      nextMod ? `Siguiente: ${nextMod.name}` : 'Ver todos los módulos';
+    document.getElementById('done-continue').onclick = nextMod
+      ? () => { ST.moduleIdx = MODULES.indexOf(nextMod); ST.sectionIdx = 0; enterCurrentSection(); }
+      : () => go('map', 'back');
+  }
+
+  go('done', 'forward');
+}
+
+function findNextModule() {
+  for (let i = 0; i < MODULES.length; i++) {
+    if (!ST.modDone.has(MODULES[i].id)) return MODULES[i];
+  }
+  return null;
+}
+
+function continueAfterModule() {
+  // handled dynamically in showModuleDone
+}
+
+function backFromSection() {
+  go('map', 'back');
+  setTimeout(renderMap, 100);
+}
+
+/* ─── Dots ────────────────────────────────── */
+function renderDots(total, active) {
+  const wrap = document.getElementById('sec-dots');
+  wrap.innerHTML = '';
+  const max = Math.min(total, 7); // cap at 7 dots
+  for (let i = 0; i < max; i++) {
+    const d = document.createElement('div');
+    d.className = 'sec-dot' + (i === active ? ' active' : i < active ? ' visited' : '');
+    wrap.appendChild(d);
+  }
+}
+
+/* ─── Overall bar ─────────────────────────── */
+function updateOverallBar() {
+  const pct = (ST.visited.size / TOTAL_SECS) * 100;
+  document.getElementById('overall-fill').style.width = pct + '%';
+}
+
+/* ═══════════════════════════════════════════════
+   TOUCH GESTURES
+═══════════════════════════════════════════════ */
+let tStartX = 0, tStartY = 0, tStartTime = 0;
+
+document.addEventListener('touchstart', e => {
+  tStartX    = e.touches[0].clientX;
+  tStartY    = e.touches[0].clientY;
+  tStartTime = Date.now();
+}, { passive: true });
+
+document.addEventListener('touchend', e => {
+  if (ST.screen !== 'section') return;
+  const dx   = tStartX - e.changedTouches[0].clientX;
+  const dy   = Math.abs(tStartY - e.changedTouches[0].clientY);
+  const dt   = Date.now() - tStartTime;
+  const absDx = Math.abs(dx);
+
+  // Only horizontal swipes, not too slow, not too vertical
+  if (absDx > 55 && dy < 60 && dt < 500 && absDx > dy * 1.5) {
+    if (dx > 0) nextCard();
+    else        prevCard();
+  }
+}, { passive: true });
+
+/* ═══════════════════════════════════════════════
+   KEYBOARD
+═══════════════════════════════════════════════ */
+document.addEventListener('keydown', e => {
+  if (ST.screen === 'section') {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextCard(); }
+    if (e.key === 'ArrowLeft')  { e.preventDefault(); prevCard(); }
+    if (e.key === 'Escape')     { backFromSection(); }
+  }
+  if (ST.screen === 'home' && (e.key === 'Enter' || e.key === ' ')) {
+    go('map');
+    setTimeout(renderMap, 50);
+  }
+});
+
+/* ═══════════════════════════════════════════════
+   HOME BUTTON
+═══════════════════════════════════════════════ */
+document.querySelector('#s-home .btn-primary').addEventListener('click', () => {
+  go('map');
+  setTimeout(renderMap, 50);
+});
+
+/* ═══════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════ */
+function init() {
+  loadState();
+  // Default module theme
+  applyModuleTheme('#e8a030');
+  // Render map in background so it's ready
+  renderMap();
+}
+
+init();
+</script>
+</body>
+</html>
