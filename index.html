@@ -5,6 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>J&C – Santiago. Estilo y Compromiso.</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<!-- ══ PWA META TAGS ══ -->
+<meta name="theme-color" content="#1a2b5e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="J&C">
+<link rel="apple-touch-icon" href="https://img.icons8.com/ios-filled/96/1a2b5e/shopping-bag.png">
+
+<!-- ══ FIREBASE (compat) ══ -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics-compat.js"></script>
 <style>
   :root {
     --navy: #1a2b5e;
@@ -490,6 +503,214 @@
   .admin-divider { border:none; border-top:1px solid rgba(255,255,255,0.06); margin:0; }
   .admin-section-note { font-size:0.62rem; color:rgba(255,255,255,0.25); font-style:italic; text-align:center; }
   .admin-price-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+
+  /* ────────────────────────────────────────────────
+     NAVY BLOCKS — EFECTO REFLEJO DE LUZ BLANCA
+     Un rayo de luz blanca diagonal barre izquierda→derecha
+     en bucle suave, como seda o satén bajo luz de estudio.
+  ──────────────────────────────────────────────── */
+
+  /* Actualizar gradientes de navy para que no sean oscuros/planos */
+  .site-header {
+    background: linear-gradient(150deg,
+      #243d82 0%, #1e3472 30%,
+      #1a2e66 60%, #2535748a 80%,
+      #2a3f80 100%) !important;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.12) !important;
+  }
+  .social-bar {
+    background: linear-gradient(180deg,
+      #223578 0%, #1a2b5e 100%) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08) !important;
+  }
+  .site-footer {
+    background: linear-gradient(180deg,
+      #1a2b5e 0%, #142050 100%) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.07) !important;
+  }
+  .btn-carrito {
+    background: linear-gradient(135deg, #223680 0%, #1a2b5e 60%, #1e3272 100%) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 16px rgba(26,43,94,0.35) !important;
+  }
+  .btn-carrito:hover { background: linear-gradient(135deg,#1a2b5e,#111d42) !important; }
+  .btn-express {
+    background: linear-gradient(135deg, #1e3472 0%, #1a2b5e 50%, #253e80 100%) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08) !important;
+  }
+  .btn-pay {
+    background: linear-gradient(135deg, #243d82 0%, #1a2b5e 50%, #2a3f80 100%) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 20px rgba(26,43,94,0.3) !important;
+  }
+  .btn-details {
+    background: linear-gradient(135deg, #1e3472 0%, #1a2b5e 100%) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.06) !important;
+  }
+  .modal-header {
+    background: linear-gradient(135deg, #1e3472 0%, #1a2b5e 60%, #253e80 100%) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.1) !important;
+  }
+
+  /* ── Keyframe: NAVY light sweep (izquierda → derecha) ── */
+  @keyframes navyLightSweep {
+    0%   { transform: translateX(-120%) skewX(-18deg); opacity: 0; }
+    8%   { opacity: 1; }
+    42%  { opacity: 0.85; }
+    52%  { opacity: 0; transform: translateX(120%) skewX(-18deg); }
+    100% { transform: translateX(-120%) skewX(-18deg); opacity: 0; }
+  }
+
+  /* Elemento base para shimmer — todos los bloques navy */
+  .site-header, .social-bar, .site-footer,
+  .btn-carrito, .btn-express, .btn-pay, .btn-details,
+  .modal-header {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .site-header::after,
+  .social-bar::after,
+  .site-footer::after {
+    content: '';
+    position: absolute; inset: 0;
+    width: 55%; height: 100%;
+    background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(255,255,255,0.03) 25%,
+      rgba(255,255,255,0.10) 50%,
+      rgba(255,255,255,0.03) 75%,
+      transparent 100%
+    );
+    animation: navyLightSweep 8s cubic-bezier(0.4,0,0.6,1) infinite;
+    pointer-events: none; z-index: 50;
+  }
+  .social-bar::after  { animation-delay: 2.7s; }
+  .site-footer::after { animation-delay: 5.1s; }
+
+  .btn-carrito::after, .btn-express::after,
+  .btn-pay::after,     .btn-details::after,
+  .modal-header::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg,
+      transparent, rgba(255,255,255,0.08) 50%, transparent
+    );
+    animation: navyLightSweep 6s ease-in-out infinite;
+    pointer-events: none; z-index: 1;
+  }
+  .btn-express::after  { animation-delay: 1.2s; }
+  .btn-pay::after      { animation-delay: 2.4s; }
+  .btn-details::after  { animation-delay: 0.6s; }
+  .modal-header::after { animation-delay: 3.6s; }
+
+  /* ────────────────────────────────────────────────
+     GOLD ELEMENTS — DESTELLO LUJO (derecha → izquierda)
+     Direccion inversa + flash de brillo puntual,
+     sincronizado con el ciclo navy de 8 segundos.
+  ──────────────────────────────────────────────── */
+
+  /* ── Keyframe: GOLD sweep (derecha → izquierda) ── */
+  @keyframes goldLuxeSweep {
+    0%   { transform: translateX(130%) skewX(18deg); opacity: 0; }
+    8%   { opacity: 1; }
+    42%  { opacity: 0.9; }
+    52%  { opacity: 0; transform: translateX(-130%) skewX(18deg); }
+    100% { transform: translateX(130%) skewX(18deg); opacity: 0; }
+  }
+
+  /* ── Keyframe: GOLD glint puntual (destello breve) ── */
+  @keyframes goldGlint {
+    0%,72%,100% { opacity: 0; transform: scale(0) rotate(0deg); }
+    76%  { opacity: 1; transform: scale(1.4) rotate(35deg); }
+    82%  { opacity: 0.6; transform: scale(1) rotate(60deg); }
+    88%  { opacity: 0; transform: scale(0.4) rotate(90deg); }
+  }
+
+  /* Badges de precio en tarjetas */
+  .card-price {
+    position: relative; overflow: hidden;
+  }
+  .card-price::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg,
+      transparent, rgba(255,240,140,0.55) 50%, transparent
+    );
+    animation: goldLuxeSweep 8s cubic-bezier(0.4,0,0.6,1) infinite;
+    pointer-events: none; z-index: 1;
+  }
+
+  /* Tags de producto */
+  .product-tag { position: relative; overflow: hidden; }
+  .product-tag::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg,
+      transparent, rgba(255,225,100,0.45) 50%, transparent
+    );
+    animation: goldLuxeSweep 8s ease-in-out infinite;
+    pointer-events: none; z-index: 1;
+  }
+  .product-tag:nth-child(2)::after { animation-delay: 2.4s; }
+  .product-tag:nth-child(3)::after { animation-delay: 4.8s; }
+
+  /* Texto del logo J&C en header — color blanco limpio */
+  #logoHeading {
+    color: var(--white);
+    -webkit-text-fill-color: var(--white);
+  }
+  @keyframes logoGoldShine { 0%,100%{} }
+
+  /* ── Admin gallery styles ── */
+  .admin-tabs { grid-template-columns: repeat(6,1fr) !important; }
+  .admin-gallery-grid {
+    display: grid; grid-template-columns: repeat(3,1fr); gap: 8px;
+  }
+  .gallery-slot {
+    position: relative; aspect-ratio: 1;
+    border-radius: 8px; overflow: hidden;
+    border: 1.5px dashed rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.03);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: border-color 0.2s;
+  }
+  .gallery-slot.filled { border-style: solid; border-color: rgba(212,168,50,0.35); }
+  .gallery-slot:hover { border-color: rgba(212,168,50,0.5); }
+  .gallery-slot img { width:100%; height:100%; object-fit:cover; border-radius:7px; }
+  .gallery-slot .slot-empty {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 4px; color: rgba(255,255,255,0.2); font-size: 0.7rem;
+  }
+  .gallery-slot .slot-num {
+    position: absolute; top: 4px; left: 5px;
+    font-size: 0.52rem; font-weight: 700;
+    color: rgba(255,255,255,0.25); z-index: 2;
+  }
+  .gallery-slot .slot-remove {
+    position: absolute; top: 3px; right: 4px;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: rgba(180,50,50,0.75); border: none;
+    color: white; font-size: 0.58rem; cursor: pointer;
+    display: none; align-items: center; justify-content: center;
+    z-index: 3;
+  }
+  .gallery-slot.filled:hover .slot-remove { display: flex; }
+  .gallery-url-input { display: none; }
+  .gallery-url-input.show {
+    display: flex; flex-direction: column; gap: 6px;
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: rgba(10,16,40,0.97); padding: 14px 16px;
+    border-top: 1px solid rgba(212,168,50,0.25);
+    z-index: 9999; animation: slideUp 0.25s ease;
+  }
+  .gallery-url-input label {
+    font-size: 0.6rem; color: rgba(212,168,50,0.7);
+    font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+  }
+  .gallery-url-input .url-row { display: flex; gap: 8px; }
+  .gallery-count {
+    font-size: 0.62rem; color: rgba(255,255,255,0.35);
+    text-align: center; padding: 4px 0;
+  }
 </style>
 </head>
 <body>
@@ -675,7 +896,7 @@
       <!-- #10: Only Transferencia or Efectivo -->
       <div class="form-group">
         <div class="form-section-title">Paso 2 · Método de Pago</div>
-        <div class="payment-options">
+        <div class="payment-options" style="grid-template-columns:1fr 1fr;">
           <label class="pay-opt selected" id="payTransfer" onclick="selectPayment('transfer')">
             <input type="radio" name="payment" value="transfer" checked>
             <span class="pay-opt-icon">🏦</span>
@@ -688,6 +909,27 @@
             <span class="pay-opt-label">Efectivo</span>
             <span class="pay-opt-sub">Al momento</span>
           </label>
+          <label class="pay-opt" id="payWebpay" onclick="selectPayment('webpay')">
+            <input type="radio" name="payment" value="webpay">
+            <span class="pay-opt-icon">💳</span>
+            <span class="pay-opt-label">Webpay</span>
+            <span class="pay-opt-sub">Tarjeta crédito/débito</span>
+          </label>
+          <label class="pay-opt" id="payKhipu" onclick="selectPayment('khipu')">
+            <input type="radio" name="payment" value="khipu">
+            <span class="pay-opt-icon">🔗</span>
+            <span class="pay-opt-label">Khipu</span>
+            <span class="pay-opt-sub">Transferencia rápida</span>
+          </label>
+          <label class="pay-opt" id="payMercadoPago" onclick="selectPayment('mercadopago')" style="grid-column:1/-1;">
+            <input type="radio" name="payment" value="mercadopago">
+            <span class="pay-opt-icon">🛒</span>
+            <span class="pay-opt-label">Mercado Pago</span>
+            <span class="pay-opt-sub">Tarjeta, cuotas y más</span>
+          </label>
+        </div>
+        <div id="onlinePayNote" style="display:none;background:linear-gradient(135deg,#f5f9ff,#eef4ff);border:1px solid #c5d8f5;border-radius:8px;padding:9px 12px;font-size:0.72rem;color:#2a4a8a;margin-top:6px;">
+          💡 <strong>Pago en línea:</strong> Al confirmar, serás redirigido al portal de pago seguro.
         </div>
       </div>
 
@@ -987,8 +1229,14 @@ document.getElementById('checkoutModal').addEventListener('click', function(e) {
 
 // ── Payment ──
 function selectPayment(type) {
-  document.getElementById('payTransfer').classList.toggle('selected', type === 'transfer');
-  document.getElementById('payEfectivo').classList.toggle('selected', type === 'efectivo');
+  ['transfer','efectivo','webpay','khipu','mercadopago'].forEach(t => {
+    const el = document.getElementById('pay' + t.charAt(0).toUpperCase() + t.slice(1));
+    if (el) el.classList.toggle('selected', t === type);
+  });
+  const onlineTypes = ['webpay','khipu','mercadopago'];
+  const note = document.getElementById('onlinePayNote');
+  if (note) note.style.display = onlineTypes.includes(type) ? 'block' : 'none';
+  window._selectedPayment = type;
 }
 
 // ── Upsell reveal (#11) ──
@@ -1001,15 +1249,73 @@ function addUpsellItem() {
 }
 
 // ── Process payment ──
-function processPayment() {
-  const nombre = document.getElementById('m_nombre').value.trim();
+async function processPayment() {
+  const nombre  = document.getElementById('m_nombre').value.trim();
+  const tel     = document.getElementById('m_tel').value.trim();
+  const dir     = document.getElementById('m_dir').value.trim();
+  const email   = document.getElementById('m_email').value.trim();
+  const comuna  = document.getElementById('m_comuna').value.trim();
+  const region  = document.getElementById('m_region').value;
+  const rut     = document.getElementById('m_rut').value.trim();
+
   if (!nombre) {
     showSimpleToast('⚠ Ingresa tu nombre');
     document.getElementById('m_nombre').focus();
     return;
   }
+
+  const p       = products[currentProductId];
+  const metodo  = window._selectedPayment || 'transfer';
+  const metodoLabel = {
+    transfer: 'Transferencia Bancaria',
+    efectivo: 'Efectivo',
+    webpay: 'Webpay (Tarjeta)',
+    khipu: 'Khipu',
+    mercadopago: 'Mercado Pago'
+  }[metodo] || metodo;
+
+  const pedido = {
+    producto: p.name,
+    precio: '$' + p.clp.toLocaleString('es-CL') + ' CLP',
+    nombre, tel, email, rut, dir, comuna, region,
+    pago: metodoLabel,
+    fecha: new Date().toLocaleString('es-CL')
+  };
+
+  // ── Guardar pedido en Firestore ──
+  if (window._db) {
+    try {
+      await window._db.collection('pedidos').add({
+        ...pedido,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    } catch(err) { console.warn('Firestore order save error:', err); }
+  }
+
+  // ── Analytics ──
+  if (window._analytics) {
+    try { firebase.analytics().logEvent('purchase', { product: p.name, value: p.clp }); } catch(e){}
+  }
+
   closeCheckout();
-  showSimpleToast('✓ ¡Pedido registrado! Te contactamos pronto.');
+
+  // ── Abrir WhatsApp con todos los datos ──
+  const waNum = '56950147783';
+  const msg = encodeURIComponent(
+    `🛍️ *NUEVO PEDIDO J&C*\n\n` +
+    `👤 *Cliente:* ${nombre}\n` +
+    `📱 *Teléfono:* ${tel || '—'}\n` +
+    `📧 *Email:* ${email || '—'}\n` +
+    `🪪 *RUT:* ${rut || '—'}\n` +
+    `📦 *Producto:* ${p.name}\n` +
+    `💰 *Precio:* $${p.clp.toLocaleString('es-CL')} CLP\n` +
+    `💳 *Pago:* ${metodoLabel}\n` +
+    `📍 *Dirección:* ${dir || '—'}, ${comuna || '—'}, ${region || '—'}\n` +
+    `🕐 *Fecha:* ${pedido.fecha}`
+  );
+  window.open(`https://wa.me/${waNum}?text=${msg}`, '_blank');
+
+  showSimpleToast('✓ ¡Pedido enviado por WhatsApp!');
 }
 
 // ── Catalog rendering (#7) ──
@@ -1108,9 +1414,10 @@ document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
       <div class="admin-tabs">
         <button class="admin-tab-btn active" onclick="switchAdminTab(this,'ap-precio')">💰 Precio</button>
         <button class="admin-tab-btn" onclick="switchAdminTab(this,'ap-tallas')">📐 Tallas</button>
-        <button class="admin-tab-btn" onclick="switchAdminTab(this,'ap-colores')">🎨 Colores</button>
-        <button class="admin-tab-btn" onclick="switchAdminTab(this,'ap-detalles')">📝 Detalles</button>
+        <button class="admin-tab-btn" onclick="switchAdminTab(this,'ap-colores')">🎨 Color</button>
+        <button class="admin-tab-btn" onclick="switchAdminTab(this,'ap-detalles')">📝 Info</button>
         <button class="admin-tab-btn" onclick="switchAdminTab(this,'ap-rating')">⭐ Rating</button>
+        <button class="admin-tab-btn" onclick="switchAdminTab(this,'ap-galeria')">📷 Galería</button>
       </div>
 
       <!-- ── TAB: PRECIO ── -->
@@ -1234,6 +1541,35 @@ document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
         </div>
       </div>
 
+      <!-- ── TAB: GALERÍA ── -->
+      <div class="admin-tab-content" id="ap-galeria">
+        <div>
+          <div class="admin-field-label">Galería de Imágenes</div>
+          <div class="gallery-count" id="galleryCount">0 / 10 imágenes</div>
+          <div class="admin-gallery-grid" id="adminGalleryGrid"></div>
+        </div>
+        <div class="admin-section-note">Toca un slot para agregar URL de imagen. Máximo 10 fotos por prenda.</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+          <button class="admin-save-btn" onclick="adminSave('galeria')">Aplicar Galería →</button>
+          <span class="admin-saved-badge" id="saved-galeria">✓ Aplicado</span>
+        </div>
+      </div>
+
+      <!-- URL INPUT PANEL (floats over) -->
+      <div class="gallery-url-input" id="galleryUrlInput">
+        <label id="galleryUrlLabel">URL de imagen #1</label>
+        <div class="url-row">
+          <input class="admin-input" type="url" id="galleryUrlField"
+            placeholder="https://images.unsplash.com/..." style="flex:1">
+          <button class="admin-save-btn" style="width:auto;padding:9px 14px;flex-shrink:0"
+            onclick="confirmGalleryUrl()">OK</button>
+        </div>
+        <button onclick="cancelGalleryUrl()"
+          style="background:none;border:none;color:rgba(255,255,255,0.3);font-size:0.72rem;cursor:pointer;text-align:center;padding:4px">
+          Cancelar
+        </button>
+      </div>
+
     </div>
   </div>
 </div>
@@ -1337,8 +1673,11 @@ function loadAdminProduct() {
   adminRating = p.stars;
   updateAdminStars(adminRating);
 
+  // Gallery
+  loadAdminGallery(p);
+
   // Clear save badges
-  ['precio','tallas','colores','detalles','rating'].forEach(k => {
+  ['precio','tallas','colores','detalles','rating','galeria'].forEach(k => {
     document.getElementById('saved-'+k).classList.remove('show');
   });
 }
@@ -1429,6 +1768,21 @@ function adminSave(type) {
     renderCatalog();
   }
 
+  if (type === 'galeria') {
+    const id2 = parseInt(document.getElementById('adminProductSelect').value);
+    const p2 = products[id2];
+    const gallery = getAdminGalleryUrls();
+    if (gallery.length > 0) {
+      p2.gallery = gallery;
+      p2.img   = gallery[0];
+      p2.imgSm = gallery[0];
+      if (currentProductId === id2) {
+        rebuildCarousel(gallery);
+      }
+      renderCatalog();
+    }
+  }
+
   // Show saved badge
   const badge = document.getElementById('saved-'+type);
   badge.classList.add('show');
@@ -1454,6 +1808,225 @@ function updateColorSwatchesAvailability(avail) {
     sw.style.opacity = available ? '1' : '0.25';
     sw.style.pointerEvents = available ? 'auto' : 'none';
   });
+}
+
+// ══════════════════════════════════
+// GALLERY ADMIN LOGIC
+// ══════════════════════════════════
+let adminGallerySlots = new Array(10).fill(null); // null = empty slot
+let activeGallerySlot = -1;
+
+function loadAdminGallery(p) {
+  const imgs = p.gallery || [p.img];
+  adminGallerySlots = new Array(10).fill(null);
+  imgs.slice(0, 10).forEach((url, i) => { adminGallerySlots[i] = url; });
+  renderGalleryGrid();
+}
+
+function renderGalleryGrid() {
+  const grid = document.getElementById('adminGalleryGrid');
+  grid.innerHTML = '';
+  let filled = adminGallerySlots.filter(Boolean).length;
+  document.getElementById('galleryCount').textContent = `${filled} / 10 imágenes`;
+
+  adminGallerySlots.forEach((url, i) => {
+    const slot = document.createElement('div');
+    slot.className = 'gallery-slot' + (url ? ' filled' : '');
+    slot.dataset.idx = i;
+
+    const num = document.createElement('span');
+    num.className = 'slot-num';
+    num.textContent = i + 1;
+    slot.appendChild(num);
+
+    if (url) {
+      const img = document.createElement('img');
+      img.src = url;
+      img.onerror = () => { img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect fill="%23334" width="40" height="40"/><text x="50%" y="55%" fill="%23aaa" font-size="10" text-anchor="middle">✕</text></svg>'; };
+      slot.appendChild(img);
+
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'slot-remove';
+      removeBtn.textContent = '✕';
+      removeBtn.onclick = (e) => { e.stopPropagation(); adminGallerySlots[i] = null; renderGalleryGrid(); };
+      slot.appendChild(removeBtn);
+    } else {
+      const empty = document.createElement('div');
+      empty.className = 'slot-empty';
+      empty.innerHTML = '<span style="font-size:1.4rem;opacity:0.3">＋</span><span>Foto</span>';
+      slot.appendChild(empty);
+    }
+
+    slot.onclick = () => openGalleryUrlInput(i);
+    grid.appendChild(slot);
+  });
+}
+
+function openGalleryUrlInput(idx) {
+  activeGallerySlot = idx;
+  document.getElementById('galleryUrlLabel').textContent = `URL de imagen #${idx + 1}`;
+  document.getElementById('galleryUrlField').value = adminGallerySlots[idx] || '';
+  document.getElementById('galleryUrlInput').classList.add('show');
+  document.getElementById('galleryUrlField').focus();
+}
+
+function confirmGalleryUrl() {
+  const url = document.getElementById('galleryUrlField').value.trim();
+  if (url && activeGallerySlot >= 0) {
+    adminGallerySlots[activeGallerySlot] = url;
+    renderGalleryGrid();
+  }
+  cancelGalleryUrl();
+}
+
+function cancelGalleryUrl() {
+  document.getElementById('galleryUrlInput').classList.remove('show');
+  activeGallerySlot = -1;
+}
+
+function getAdminGalleryUrls() {
+  return adminGallerySlots.filter(Boolean);
+}
+
+function rebuildCarousel(gallery) {
+  const track = document.getElementById('carouselTrack');
+  track.innerHTML = '';
+  gallery.forEach((url, i) => {
+    const slide = document.createElement('div');
+    slide.className = 'carousel-slide';
+    const img = document.createElement('img');
+    img.className = 'product-img';
+    img.id = 'mainImg' + i;
+    img.src = url;
+    img.alt = 'Vista ' + (i + 1);
+    slide.appendChild(img);
+    track.appendChild(slide);
+  });
+  currentSlide = 0;
+  track.style.transform = 'translateX(0)';
+}
+</script>
+
+<!-- ══════════════════════════════════════════════════════════════
+     FIREBASE · FIRESTORE PERSISTENCIA · ANALYTICS · PWA
+══════════════════════════════════════════════════════════════ -->
+<script>
+// ── Firebase Init ──
+const firebaseConfig = {
+  apiKey: "AIzaSyCiT4X6m0jHORDYsDmMHnpJSKo9XwjlMIA",
+  authDomain: "jyc-project-36951.firebaseapp.com",
+  projectId: "jyc-project-36951",
+  storageBucket: "jyc-project-36951.firebasestorage.app",
+  messagingSenderId: "873634679370",
+  appId: "1:873634679370:web:3949ece235acd6baae74b3",
+  measurementId: "G-X6BGTL6J6V"
+};
+firebase.initializeApp(firebaseConfig);
+window._db        = firebase.firestore();
+window._analytics = firebase.analytics();
+
+// ── Cargar productos desde Firestore al iniciar ──
+(async function loadProductsFromFirestore() {
+  try {
+    const snap = await window._db.collection('products').get();
+    if (snap.empty) return;
+    snap.forEach(docSnap => {
+      const data = docSnap.data();
+      const idx  = products.findIndex(p => p.id === data.id);
+      if (idx !== -1) Object.assign(products[idx], data);
+    });
+    // Rerender with persisted data
+    loadProduct(currentProductId);
+    renderCatalog();
+    console.log('✅ Productos cargados desde Firestore');
+  } catch (err) {
+    console.warn('⚠ No se pudo cargar desde Firestore:', err.message);
+  }
+})();
+
+// ── Parche adminSave → también guarda en Firestore ──
+const _origAdminSave = adminSave;
+adminSave = async function(type) {
+  _origAdminSave(type);   // ejecuta la lógica original primero
+  const id = parseInt(document.getElementById('adminProductSelect').value);
+  const p  = products[id];
+  if (!window._db) return;
+  try {
+    await window._db.collection('products').doc('prod_' + id).set(p, { merge: true });
+    console.log(`💾 Producto ${p.name} guardado en Firestore (${type})`);
+  } catch(err) {
+    console.warn('⚠ Error guardando en Firestore:', err.message);
+    showSimpleToast('⚠ Sin conexión: cambio guardado solo localmente');
+  }
+};
+
+// ── Analytics: rastrear eventos clave ──
+const _origLoadProduct = loadProduct;
+loadProduct = function(id) {
+  _origLoadProduct(id);
+  try { firebase.analytics().logEvent('view_item', { item_name: products[id]?.name }); } catch(e){}
+};
+
+const _origAddToCart = addToCart;
+addToCart = function() {
+  _origAddToCart();
+  try { firebase.analytics().logEvent('add_to_cart', { item_name: products[currentProductId]?.name, value: products[currentProductId]?.clp }); } catch(e){}
+};
+
+// page_view
+try { firebase.analytics().logEvent('page_view', { page_title: 'J&C Tienda' }); } catch(e){}
+</script>
+
+<!-- ══ PWA: Manifest inline + Service Worker ══ -->
+<script>
+// Inyectar manifest dinámicamente
+(function injectPWA() {
+  const manifest = {
+    name: "J&C – Estilo y Compromiso",
+    short_name: "J&C",
+    description: "Tienda de ropa J&C Santiago. Lana Merino, Alpaca y más.",
+    start_url: "./",
+    display: "standalone",
+    background_color: "#f7f5f0",
+    theme_color: "#1a2b5e",
+    orientation: "portrait",
+    icons: [
+      { src: "https://img.icons8.com/ios-filled/192/1a2b5e/shopping-bag.png", sizes: "192x192", type: "image/png" },
+      { src: "https://img.icons8.com/ios-filled/512/1a2b5e/shopping-bag.png", sizes: "512x512", type: "image/png" }
+    ]
+  };
+  const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const link = document.createElement('link');
+  link.rel   = 'manifest';
+  link.href  = url;
+  document.head.appendChild(link);
+})();
+
+// Service Worker para cache offline
+if ('serviceWorker' in navigator) {
+  const swCode = `
+    const CACHE = 'jyc-v1';
+    const ASSETS = [
+      './',
+      'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=DM+Sans:wght@300;400;500;600&display=swap'
+    ];
+    self.addEventListener('install', e => {
+      e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).catch(()=>{}));
+      self.skipWaiting();
+    });
+    self.addEventListener('activate', e => {
+      e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));
+    });
+    self.addEventListener('fetch', e => {
+      e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+    });
+  `;
+  const swBlob = new Blob([swCode], { type: 'text/javascript' });
+  const swUrl  = URL.createObjectURL(swBlob);
+  navigator.serviceWorker.register(swUrl, { scope: './' })
+    .then(() => console.log('✅ PWA Service Worker activo'))
+    .catch(err => console.warn('SW error:', err));
 }
 </script>
 
